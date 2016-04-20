@@ -17,6 +17,7 @@
         android:layout_height="match_parent"
         android:layout_toRightOf="@+id/image_entry_title"
         android:layout_weight="1"
+        android:clickable="true"
         android:id="@+id/image_entry_image"
         android:background="#d0d0d0d0"/>
 

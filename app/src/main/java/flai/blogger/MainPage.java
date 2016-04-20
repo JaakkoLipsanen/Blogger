@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -46,6 +47,7 @@ public class MainPage extends AppCompatActivity {
     private static final int PICK_LOADED_FILE = 2;
 
     private final String flaiFolderName = "/storage/sdcard1" + "/flai";
+    //private final String flaiFolderName = "/storage/sdcard0" + "/flai";
     private final String imageFolderName = flaiFolderName + "/images_all";
     private final String tempFolderName = flaiFolderName + "/temp_folder";
 
@@ -190,6 +192,8 @@ public class MainPage extends AppCompatActivity {
 
                     Bitmap bitmap = BitmapFactory.decodeFile(sourcePath, options);  /* IF I WANT TO RESIZE THE IMAGES A BIT SMALLER, USE THIS:  BITMAP_RESIZER(BitmapFactory.decodeFile(sourcePath, options), 1920); */
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+
+                    bitmap.recycle();
                 }
 
                 /* FINALLY, SAVE TO .ZIP */
@@ -247,6 +251,18 @@ public class MainPage extends AppCompatActivity {
                 startActivityForResult(chooserIntent, PICK_LOADED_FILE);
             }
         });
+
+        final ImageView latestImageEntryClickedImage = (ImageView)findViewById(R.id.latest_entry_click_image);
+        listAdapter.onImageEntryImageClicked = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImageView img = (ImageView)v;
+                System.out.println("onClick!!");
+                if(img != null) {
+                    latestImageEntryClickedImage.setImageDrawable(img.getDrawable());
+                }
+            }
+        };
     }
 
     // ACTIVITY == CHOOSE IMAGE OR ZIP FILE DIALOG
@@ -276,26 +292,36 @@ public class MainPage extends AppCompatActivity {
         }
         else if(requestCode == PICK_LOADED_FILE) { /* THIS IS WHEN BLOG ENTRY WAS LOADED (WITH 'LOAD' BUTTON) */
             if(resultCode == RESULT_OK) {
-
                 try {
                     listAdapter.reset();
-
                     InputStream inputStream = new BufferedInputStream(getContentResolver().openInputStream(data.getData()));
                     ZipInputStream zipInput = new ZipInputStream(inputStream);
-
                     String postsFileContent = "";
 
                     ZipEntry entry = null;
+                    ArrayList<Byte> byteCollector = new ArrayList<>();
                     while((entry = zipInput.getNextEntry()) != null) { /* LOAD ALL FILES IN THE .ZIP */
-
                         if(entry.getName().equals("/posts.txt")) {
                             final int BUFFER = 8192;
-
                             byte bytes[] = new byte[BUFFER];
-                            int count = zipInput.read(bytes, 0, BUFFER);
+                            //int count = zipInput.read(bytes, 0, BUFFER);
+                            //int count2 = zipInput.read(bytes, 0, BUFFER);
 
-                            postsFileContent = new String(Arrays.copyOfRange(bytes, 0, count), "UTF-8");
+                            int count = 0;
+                            while ((count = zipInput.read(bytes)) != -1) {
+                                for (int i = 0; i < count; i++) {
+                                    byteCollector.add(bytes[i]);
+                                }
+                            }
+
+                            byte[] bytes2 = new byte[byteCollector.size()];
+                            for (int i = 0; i < byteCollector.size(); i++) {
+                                bytes2[i] = byteCollector.get(i).byteValue();
+                            }
+
+                            postsFileContent = new String(Arrays.copyOfRange(bytes2, 0, bytes2.length), "UTF-8");
                              //  this.loadPostsFile(zipInput, entry); // POSTS.TXT IS LOADED AFTER EVERYTHING SINCE IMAGES MUST BE LOADED BEFORE POSTS
+
                         }
                         else if(entry.getName().startsWith("/orig/")) { // aka image!!
                             final int BUFFER = 2048;
@@ -303,18 +329,15 @@ public class MainPage extends AppCompatActivity {
                             new File(imageFolderName).mkdirs();
                             final File imageFile = new File(imageFolderName + "/" + getLastPathComponent(entry.getName())); /* SAVE IMAGES TO /flai/images_all */
                             imageFile.delete(); // make sure deleted
-
+                            //imageFile.mkdirs();
                             imageFile.createNewFile();
-
                             FileOutputStream outputStream = new FileOutputStream(imageFile);
                             byte byteData[] = new byte[BUFFER];
-
                             int count = 0;
                             while ((count = zipInput.read(byteData)) != -1)
                             {
                                 outputStream.write(byteData, 0, count);
                             }
-
                             outputStream.close();
                             zipInput.closeEntry();
                         }
@@ -347,7 +370,7 @@ public class MainPage extends AppCompatActivity {
                     EntryType.Image entry = (EntryType.Image)listAdapter.getItem(itemPosition);
                     ImageView imageEntryView = (ImageView)listAdapter.getViewByPosition(itemPosition, _listView).findViewById(R.id.image_entry_image);
 
-                    imageEntryView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream), 128, 128, false));
+                    imageEntryView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream), 384, 384, false));
                     entry.uri = data.getData();
 
                     //mTmpGalleryPicturePath = selectedImage.getPath();
@@ -402,12 +425,13 @@ public class MainPage extends AppCompatActivity {
             }
 
             String tag = line.split(":")[0].trim();
-            String content = line.split(":")[1].trim();
+
+            String content = line.split(":", 2)[1].trim();
 
             if(tag.equals("text")) {
                 EntryType.Text t = new EntryType.Text();
                 t.text = content;
-
+                System.out.println(t.text);
                 listAdapter.add(t);
             }
             else if(tag.equals("header")) {
@@ -460,7 +484,8 @@ public class MainPage extends AppCompatActivity {
             int numberOfItems = listAdapter.getCount();
 
             // Get total height of all items.
-            int totalItemsHeight = 360 + numberOfItems * 240; // default height
+            // int totalItemsHeight = 240 + numberOfItems * 240; // was too small
+            int totalItemsHeight = 800 + numberOfItems * 800; // default height
 
             // Get total height of all item dividers.
             int totalDividersHeight = listView.getDividerHeight() *

@@ -136,17 +136,18 @@
             android:id="@+id/itemList"></ListView>
 
         <TextView
-            android:layout_marginTop="32px"
-            android:text="latest clicked entry image"
+            android:layout_marginTop="256px"
+            android:text="latest clicked entry image:"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
         </TextView>
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="500px"
+            android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:src="@drawable/testi"/>
+            android:src="@drawable/testi"
+            android:id="@+id/latest_entry_click_image"/>
 
     </LinearLayout>
 </ScrollView>

@@ -30,6 +30,8 @@ public class EntryListAdapter extends BaseAdapter {
     private final ArrayList<EntryType> list = new ArrayList<>();
     public EntryType.Image MainImage = new EntryType.Image();
 
+    public View.OnClickListener onImageEntryImageClicked = null;
+
     @Override
     public int getViewTypeCount() {
         return 4; // image, image group, header, text, in that order
@@ -86,6 +88,16 @@ public class EntryListAdapter extends BaseAdapter {
                 }
             });
 
+            final ImageView imageEntryView = (ImageView) entryView.findViewById(R.id.image_entry_image);
+            imageEntryView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    System.out.println("XXXASD");
+                    if(onImageEntryImageClicked != null) {
+                        onImageEntryImageClicked.onClick(v);
+                    }
+                }
+            });
 
             // set the entry's image to ImageView
             Uri imageUri = ((EntryType.Image) entry).uri;
@@ -99,8 +111,8 @@ public class EntryListAdapter extends BaseAdapter {
                     return entryView;
                 }
 
-                ImageView imageEntryView = (ImageView) entryView.findViewById(R.id.image_entry_image);
-                imageEntryView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream), 128, 128, false));
+
+                imageEntryView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream), 384, 384, false));
             }
         }
         else if(entry instanceof  EntryType.Text) {

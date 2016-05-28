@@ -46,8 +46,14 @@ public class MainPage extends AppCompatActivity {
     private static final int PICK_MAIN_IMAGE = 1;
     private static final int PICK_LOADED_FILE = 2;
 
+    // jaakon moto g
     private final String flaiFolderName = "/storage/sdcard1" + "/flai";
+    // ehk mi4?
     //private final String flaiFolderName = "/storage/sdcard0" + "/flai";
+    // ehk mi4?
+    //private final String flaiFolderName = "/sdcard" + "/flai";
+    // antin moto g
+    //private final String flaiFolderName = "/storage/emulated/0" + "/flai";
     private final String imageFolderName = flaiFolderName + "/images_all";
     private final String tempFolderName = flaiFolderName + "/temp_folder";
 
@@ -177,11 +183,14 @@ public class MainPage extends AppCompatActivity {
 
                         fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
                     }
-
+                    System.out.println("1234321");
+                    System.out.println(sourcePath);
                     File destination = new File(photoFolder.getPath() + "/" + fileName);
+                    System.out.println(photoFolder.getPath() + "/" + fileName);
                     OutputStream out = null;
+                    destination.getParentFile().mkdirs();
                     try {
-                        out = new FileOutputStream(destination);
+                        out = new FileOutputStream(destination, false);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -192,6 +201,12 @@ public class MainPage extends AppCompatActivity {
 
                     Bitmap bitmap = BitmapFactory.decodeFile(sourcePath, options);  /* IF I WANT TO RESIZE THE IMAGES A BIT SMALLER, USE THIS:  BITMAP_RESIZER(BitmapFactory.decodeFile(sourcePath, options), 1920); */
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+
+                    try {
+                        out.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     bitmap.recycle();
                 }
@@ -441,9 +456,21 @@ public class MainPage extends AppCompatActivity {
                 listAdapter.add(header);
             }
             else if(tag.equals("image")) {
-                EntryType.Image image = new EntryType.Image();
-                image.uri = Uri.fromFile(new File(imageFolderName + "/" + content));
+                String[] parts = content.split("\\|");
+                String fileName = parts[0];
 
+                String text = "";
+                if(parts.length > 1) {
+                    text = parts[1];
+                }
+
+                EntryType.Image image = new EntryType.Image();
+                image.uri = Uri.fromFile(new File(imageFolderName + "/" + fileName));
+                image.text = text;
+                System.out.println("asdffdsa");
+                System.out.println("content: " + content);
+                System.out.println("fileName: " + fileName);
+                System.out.println("text: " + text);
                 listAdapter.add(image);
             }
         }

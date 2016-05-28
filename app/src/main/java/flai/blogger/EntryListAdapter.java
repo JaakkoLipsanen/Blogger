@@ -70,6 +70,22 @@ public class EntryListAdapter extends BaseAdapter {
 
             entryView = inflater.inflate(R.layout.sample_image_entry_view, parent, false);
 
+            final EntryType.Image imgE = (EntryType.Image)entry;
+            EditText textField = (EditText)entryView.findViewById(R.id.image_entry_text);
+            textField.setText(imgE.text);
+
+            textField.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override
+                public void afterTextChanged(Editable s) { }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    imgE.text = s.toString(); // update the entry's text when textField changes
+                }
+            });
+
             Button changeImageButton = (Button)entryView.findViewById(R.id.change_image_button);
             changeImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override

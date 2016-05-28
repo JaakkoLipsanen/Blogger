@@ -19,7 +19,7 @@ public abstract class EntryType {
     public abstract void write(OutputStreamWriter writer) throws IOException; // write is called when blog entry is saved to file
 
     public static class Image extends EntryType {
-
+        public String text = "";
         public Uri uri; // the uri/path of the image
 
         @Override
@@ -49,7 +49,7 @@ public abstract class EntryType {
                 fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
             }
 
-            writer.write("image: " + fileName);
+            writer.write("image: " + fileName + "|" + text);
         }
     }
 

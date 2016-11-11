@@ -22,6 +22,9 @@ public abstract class EntryType {
 
         public Uri uri; // the uri/path of the image
 
+        public Image() { }
+        public Image(Uri u) { uri = u; }
+
         @Override
         public int getEntryType() {
             return TYPE_IMAGE;
@@ -41,7 +44,7 @@ public abstract class EntryType {
             if (uri.getPath().startsWith("content") || uri.getPath().startsWith("/external")) { // if the uri is content:// or /external path (this happens always when image is 'picked' with gallery)
                 final String[] proj = {MediaStore.Images.Media.DATA};
 
-                Cursor c = MyApplication.getAppContext().getContentResolver().query(uri, proj, null, null, null);
+                Cursor c = BloggerApplication.getAppContext().getContentResolver().query(uri, proj, null, null, null);
                 int column_index = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 c.moveToFirst();
 
@@ -67,6 +70,9 @@ public abstract class EntryType {
 
     public static class Text extends EntryType {
         public String text = "";
+
+        public Text() { }
+        public Text(String t) { text = t; }
         @Override
         public int getEntryType() {
             return TYPE_TEXT;
@@ -80,6 +86,9 @@ public abstract class EntryType {
 
     public static class Header extends EntryType {
         public String header = "";
+        public Header() { }
+        public Header(String h) { header = h; }
+
         @Override
         public int getEntryType() {
             return TYPE_HEADER;

@@ -22,24 +22,24 @@
         android:focusable="true"
         android:focusableInTouchMode="true">
 
-        <!-- Title -->
+        <!-- Save and Load buttons -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="120px"
+            android:layout_height="170px"
             android:orientation="horizontal"
             tools:context=".LinearLayout" >
 
             <Button
                 android:layout_width="match_parent"
-                android:layout_height="120px"
+                android:layout_height="170px"
                 android:layout_weight="50"
                 android:text="Save"
                 android:id="@+id/save_button"/>
 
             <Button
                 android:layout_width="match_parent"
-                android:layout_height="120px"
+                android:layout_height="170px"
                 android:layout_weight="50"
                 android:text="Load"
                 android:id="@+id/load_button"/>
@@ -50,7 +50,7 @@
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="90px"
+            android:layout_height="120px"
             android:orientation="horizontal"
             tools:context=".LinearLayout" >
 
@@ -72,7 +72,7 @@
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="90px"
+            android:layout_height="120px"
             android:orientation="horizontal"
             tools:context=".LinearLayout" >
 
@@ -112,7 +112,6 @@
             android:orientation="horizontal"
             tools:context=".LinearLayout" >
 
-
             <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -123,18 +122,19 @@
 
         </LinearLayout>
 
+        <!-- Spacer -->
         <View
             android:layout_marginTop="48px"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/itemList"></ListView>
 
+        <!-- Last clicked entry image -->
         <TextView
             android:layout_marginTop="256px"
             android:text="latest clicked entry image:"

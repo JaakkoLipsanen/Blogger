@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.DropBoxManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -22,6 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+
+import flai.blogger.model.BlogEntry;
+import flai.blogger.model.Image;
 
 /**
  * Created by Jaakko on 04.04.2016.
@@ -68,23 +71,23 @@ public class EntryListAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if(entry instanceof EntryType.Image) {
 
-            entryView = inflater.inflate(R.layout.sample_image_entry_view, parent, false);
+            entryView = inflater.inflate(R.layout.image_entry_view, parent, false);
 
             Button changeImageButton = (Button)entryView.findViewById(R.id.change_image_button);
             changeImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                    getIntent.setType("image/*");
+                Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                getIntent.setType("image/*");
 
-                    Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    pickIntent.setType("image/*");
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/*");
 
-                    Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
+                Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
-                    // give 100 + position as parameter (the 'position' can then later be calculated in MainPage.onActivityResult with value - 100)
-                    ((Activity) parent.getContext()).startActivityForResult(chooserIntent, 100 + position);
+                // give 100 + position as parameter (the 'position' can then later be calculated in MainPage.onActivityResult with value - 100)
+                ((Activity) parent.getContext()).startActivityForResult(chooserIntent, 100 + position);
                 }
             });
 
@@ -92,10 +95,10 @@ public class EntryListAdapter extends BaseAdapter {
             imageEntryView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    System.out.println("XXXASD");
-                    if(onImageEntryImageClicked != null) {
-                        onImageEntryImageClicked.onClick(v);
-                    }
+                System.out.println("XXXASD");
+                if(onImageEntryImageClicked != null) {
+                    onImageEntryImageClicked.onClick(v);
+                }
                 }
             });
 
@@ -116,7 +119,7 @@ public class EntryListAdapter extends BaseAdapter {
             }
         }
         else if(entry instanceof  EntryType.Text) {
-            entryView = inflater.inflate(R.layout.sample_text_entry_view, parent, false);
+            entryView = inflater.inflate(R.layout.text_entry_view, parent, false);
 
             final EntryType.Text textEntry = (EntryType.Text)entry;
             EditText textField = (EditText)entryView.findViewById(R.id.text_entry_text);
@@ -135,7 +138,7 @@ public class EntryListAdapter extends BaseAdapter {
             });
         }
         else if(entry instanceof  EntryType.Header) {
-            entryView = inflater.inflate(R.layout.sample_header_entry_view, parent, false);
+            entryView = inflater.inflate(R.layout.header_entry_view, parent, false);
 
             final EntryType.Header textEntry = (EntryType.Header)entry;
             EditText textField = (EditText)entryView.findViewById(R.id.text_entry_text);
@@ -234,5 +237,22 @@ public class EntryListAdapter extends BaseAdapter {
         this.list.clear();
         this.MainImage.uri = null;
         this.notifyDataSetChanged();
+    }
+
+    public List<BlogEntry> getBlogEntries() {
+        ArrayList<BlogEntry> blogEntries = new ArrayList<>();
+        for(EntryType entry : list) {
+            if(entry.getEntryType() == EntryType.TYPE_TEXT) {
+                blogEntries.add(new BlogEntry.TextEntry(((EntryType.Text)entry).text));
+            }
+            else if(entry.getEntryType() == EntryType.TYPE_HEADER) {
+                blogEntries.add(new BlogEntry.HeaderEntry(((EntryType.Header)entry).header));
+            }
+            else if(entry.getEntryType() == EntryType.TYPE_IMAGE) {
+                blogEntries.add(new BlogEntry.ImageEntry(new Image(((EntryType.Image)entry).uri)));
+            }
+        }
+
+        return blogEntries;
     }
 }

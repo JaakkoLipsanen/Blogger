@@ -1,34 +1,26 @@
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="225px"
-    android:id="@+id/image_entry">
+    android:layout_height="wrap_content"
+    android:id="@+id/text_entry"
+    android:minHeight="240px">
 
+    <!-- The "Text: " label -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:id="@+id/image_entry_title"
-        android:text="Image: "/>
+        android:text="Text: "/>
 
-
-    <ImageView
+    <!-- The textbox where you enter the text -->
+    <EditText
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@+id/image_entry_title"
+        android:layout_height="wrap_content"
+        android:text="Hello!!"
         android:layout_weight="1"
-        android:clickable="true"
-        android:id="@+id/image_entry_image"
-        android:background="#d0d0d0d0"/>
+        android:layout_gravity="center"
+        android:id="@+id/text_entry_text"/>
 
-    <Button
-        android:layout_width="180px"
-        android:layout_height="match_parent"
-        android:text="change"
-        android:layout_toRightOf="@+id/image_entry_image"
-        android:layout_gravity="right"
-        android:id="@+id/change_image_button"/>
-
+    <!-- Move up/down/delete buttons -->
     <LinearLayout
         android:layout_width="100px"
         android:layout_height="match_parent"
@@ -57,6 +49,4 @@
 
     </LinearLayout>
 
-
-
-</LinearLayout >
+</LinearLayout>

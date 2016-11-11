@@ -1,16 +1,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/header_entry"
     android:minHeight="240px">
 
+    <!-- "Header: " label -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="Header: "/>
 
+    <!-- The textbox where you put the name of the label -->
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,6 +20,7 @@
         android:layout_gravity="center"
         android:id="@+id/text_entry_text"/>
 
+    <!-- Move up/down/delete buttons -->
     <LinearLayout
         android:layout_width="100px"
         android:layout_height="match_parent"

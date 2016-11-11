@@ -1,4 +1,4 @@
-package flai.blogger;
+package flai.blogger.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -10,10 +10,12 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import flai.blogger.R;
+
 /**
  * TODO: document your custom view class.
  */
-public class HeaderEntryView extends View {
+public class ImageEntryView extends View {
     private String mExampleString; // TODO: use a default from R.string...
     private int mExampleColor = Color.RED; // TODO: use a default from R.color...
     private float mExampleDimension = 0; // TODO: use a default from R.dimen...
@@ -23,17 +25,17 @@ public class HeaderEntryView extends View {
     private float mTextWidth;
     private float mTextHeight;
 
-    public HeaderEntryView(Context context) {
+    public ImageEntryView(Context context) {
         super(context);
         init(null, 0);
     }
 
-    public HeaderEntryView(Context context, AttributeSet attrs) {
+    public ImageEntryView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(attrs, 0);
     }
 
-    public HeaderEntryView(Context context, AttributeSet attrs, int defStyle) {
+    public ImageEntryView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(attrs, defStyle);
     }
@@ -41,24 +43,8 @@ public class HeaderEntryView extends View {
     private void init(AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.HeaderEntryView, defStyle, 0);
+                attrs, R.styleable.ImageEntryView, defStyle, 0);
 
-        mExampleString = a.getString(
-                R.styleable.HeaderEntryView_exampleString);
-        mExampleColor = a.getColor(
-                R.styleable.HeaderEntryView_exampleColor,
-                mExampleColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        mExampleDimension = a.getDimension(
-                R.styleable.HeaderEntryView_exampleDimension,
-                mExampleDimension);
-
-        if (a.hasValue(R.styleable.HeaderEntryView_exampleDrawable)) {
-            mExampleDrawable = a.getDrawable(
-                    R.styleable.HeaderEntryView_exampleDrawable);
-            mExampleDrawable.setCallback(this);
-        }
 
         a.recycle();
 

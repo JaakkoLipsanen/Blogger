@@ -1,64 +1,77 @@
 <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="225px"
-    android:id="@+id/image_entry">
+   android:layout_width="match_parent"
 
-    <!-- "Image: " label -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:id="@+id/image_entry_title"
-        android:text="Image: "/>
+   android:orientation="vertical"
+   android:layout_height="500px"
+   android:id="@+id/image_entry">
 
-    <!-- The image -->
-    <ImageView
+    <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                   android:layout_width="match_parent"
+                   android:layout_height="225px">
+
+        <!-- "Image: " label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:id="@+id/image_entry_title"
+            android:text="Image: "/>
+
+        <!-- The image -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/image_entry_title"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:id="@+id/image_entry_image"
+            android:background="#d0d0d0d0"/>
+
+        <!-- Change image button -->
+        <Button
+            android:layout_width="180px"
+            android:layout_height="match_parent"
+            android:text="change"
+            android:layout_toRightOf="@+id/image_entry_image"
+            android:layout_gravity="right"
+            android:id="@+id/change_image_button"/>
+
+        <!-- Move up/down/delete buttons -->
+        <LinearLayout
+            android:layout_width="100px"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/change_image_button"
+            android:orientation="vertical">
+
+            <Button
+                android:layout_width="100px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="^"
+                android:id="@+id/move_up_entry"/>
+            <Button
+                android:layout_width="100px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Del"
+                android:id="@+id/delete_entry" />
+            <Button
+                android:layout_width="100px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="↓"
+
+                android:id="@+id/move_down_entry" />
+
+        </LinearLayout>
+    </LinearLayout >
+
+    <EditText
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@+id/image_entry_title"
+        android:layout_height="wrap_content"
+        android:text=""
         android:layout_weight="1"
-        android:clickable="true"
-        android:id="@+id/image_entry_image"
-        android:background="#d0d0d0d0"/>
-
-    <!-- Change image button -->
-    <Button
-        android:layout_width="180px"
-        android:layout_height="match_parent"
-        android:text="change"
-        android:layout_toRightOf="@+id/image_entry_image"
-        android:layout_gravity="right"
-        android:id="@+id/change_image_button"/>
-
-    <!-- Move up/down/delete buttons -->
-    <LinearLayout
-        android:layout_width="100px"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@+id/change_image_button"
-        android:orientation="vertical">
-
-        <Button
-            android:layout_width="100px"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="^"
-            android:id="@+id/move_up_entry"/>
-        <Button
-            android:layout_width="100px"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Del"
-            android:id="@+id/delete_entry" />
-        <Button
-            android:layout_width="100px"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="↓"
-
-            android:id="@+id/move_down_entry" />
-
-    </LinearLayout>
-
-
-
+        android:layout_gravity="center"
+        android:id="@+id/image_entry_text"/>
 </LinearLayout >

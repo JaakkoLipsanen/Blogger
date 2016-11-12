@@ -96,8 +96,9 @@ public class SaveBlogPost {
 
             File destination = new File(photoFolder.getPath() + "/" + fileName);
             OutputStream out = null;
+            destination.getParentFile().mkdirs(); /* TODO: Okei, tää oli siin antin muokkaamssa commitissa. En tiiä miksi, mut jos jotai häikkää nii kato tätä */
             try {
-                out = new FileOutputStream(destination);
+                out = new FileOutputStream(destination, false); /* TODO: toi toka parametri (, false) tulee antin commitista. ? */
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -109,6 +110,13 @@ public class SaveBlogPost {
             Bitmap bitmap = BitmapFactory.decodeFile(sourcePath, options);  /* IF I WANT TO RESIZE THE IMAGES A BIT SMALLER, USE THIS:  BITMAP_RESIZER(BitmapFactory.decodeFile(sourcePath, options), 1920); */
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
 
+            /* TODO: Okei, tää try-catch blokki on antin commitista. varmaan vaan random testailua? */
+            try {
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
             bitmap.recycle();
         }
 

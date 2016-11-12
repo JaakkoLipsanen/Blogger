@@ -11,8 +11,10 @@ public abstract class BlogEntry {
 
     public static class ImageEntry extends BlogEntry {
         private Image _image;
-        public ImageEntry(Image image) {
+        private String _imageText;
+        public ImageEntry(Image image, String imageText) {
             _image = image;
+            _imageText = imageText;
         }
 
         @Override
@@ -20,11 +22,16 @@ public abstract class BlogEntry {
             writer.write("image: ");
             if(_image != null) {
                 _image.write(writer);
+                writer.write("|" + _imageText);
             }
         }
 
         public Image getImage() {
             return _image;
+        }
+
+        public String getImageText() {
+            return _imageText;
         }
     }
 

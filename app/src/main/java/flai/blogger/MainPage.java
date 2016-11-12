@@ -127,10 +127,10 @@ public class MainPage extends AppCompatActivity {
         ((EditText)findViewById(R.id.title_edit_text)).setText(title);
     }
 
-    private void setBlogDayRange(DayRange dayRange) { // format == "X-Y"
+    private void setBlogDayRange(DayRange dayRange){ // format == "X-Y"
         ((EditText)findViewById(R.id.date_range_min)).setText(Integer.toString(dayRange.StartDate));
         ((EditText)findViewById(R.id.date_range_max)).setText(Integer.toString(dayRange.EndDate));
-    }
+        }
 
     /* DUNNO WHAT THIS IS, AUTO GENERATED */
     @Override

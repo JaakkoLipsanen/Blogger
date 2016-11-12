@@ -115,13 +115,17 @@ public class LoadBlogPost {
                 entries.add(new BlogEntry.HeaderEntry(content));
             }
             else if(tag.equals("image")) {
+                String[] parts = content.split("\\|");
+                String fileName = parts[0];
+                String imageText = (parts.length > 1) ? parts[1] :  "";
+
                 entries.add(new BlogEntry.ImageEntry(new Image(
-                        Uri.fromFile(new File(PathHelper.ImageFolderName + "/" + content)))));
+                        Uri.fromFile(new File(PathHelper.ImageFolderName + "/" + fileName))),
+                        imageText));
             }
         }
 
         Uri mainImageUri =  Uri.fromFile(new File(PathHelper.ImageFolderName + "/" + mainImage));
         return new BlogPost(title, DayRange.parse(dateRange), entries, new Image(mainImageUri));
     }
-
 }

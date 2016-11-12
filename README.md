@@ -1,2 +1,3 @@
 # Blogger
-Android app for creating blogs for flai.xyz
+
+An Android app for creating blog posts for my bicycle touring blog at flai.xyz

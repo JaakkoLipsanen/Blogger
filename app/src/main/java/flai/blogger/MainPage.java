@@ -1,6 +1,7 @@
 package flai.blogger;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,6 +32,7 @@ import flai.blogger.model.Image;
 public class MainPage extends AppCompatActivity {
     private static final int ChangeMainImageID = 1;
     private static final int LoadBlogPostID = 2;
+    private static final int LoadNewImagesID = 3;
 
     private EntryListAdapter _listAdapter;
     private ListView _entryListView;
@@ -68,8 +70,27 @@ public class MainPage extends AppCompatActivity {
         else if (requestCode == ChangeMainImageID) { /* Changing main image */
             this.changeMainImage(uri);
         }
+        else if(requestCode == LoadNewImagesID) {
+            if(data.getClipData() == null) {
+                this.loadImage(uri);
+            }
+            else {
+                this.loadNewImages(data.getClipData());
+            }
+        }
         else if(requestCode >= 100 && requestCode < 1000) { /* Changing image entry */
             this.changeEntryImage(uri, requestCode - 100);
+        }
+    }
+
+    private void loadImage(Uri uri)  {
+        _listAdapter.add(new EntryType.Image(uri));
+        UIHelper.setListViewHeightBasedOnItems(_entryListView);
+    }
+
+    private void loadNewImages(ClipData clipData) {
+        for(int i = 0; i < clipData.getItemCount(); i++) {
+            loadImage(clipData.getItemAt(i).getUri());
         }
     }
 
@@ -175,18 +196,7 @@ public class MainPage extends AppCompatActivity {
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // from http://stackoverflow.com/questions/5309190/android-pick-images-from-gallery
-                //
-                Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                getIntent.setType("application/zip");
-
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("application/zip");
-
-                Intent chooserIntent = Intent.createChooser(getIntent, "Select Zip");
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
-                startActivityForResult(chooserIntent, LoadBlogPostID);
+                IntentHelper.showZipPicker(MainPage.this, LoadBlogPostID);
             }
         });
     }
@@ -211,18 +221,7 @@ public class MainPage extends AppCompatActivity {
         findViewById(R.id.mainImageButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // from http://stackoverflow.com/questions/5309190/android-pick-images-from-gallery
-                //
-                Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                getIntent.setType("image/*");
-
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("image/*");
-
-                Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
-                startActivityForResult(chooserIntent, ChangeMainImageID);
+                IntentHelper.showImagePicker(MainPage.this, ChangeMainImageID, false);
             }
         });
     }
@@ -239,6 +238,13 @@ public class MainPage extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 // TODO: create new item here!
 
+                                // on entry type == image, don't add a new entry but
+                                // show image picker and allow choosing multiple images
+                                if (which == EntryType.TYPE_IMAGE) {
+                                    chooseNewImages();
+                                    return;
+                                }
+
                                 // 0 == text, 1 == header, 2 == image, 3 == image group
                                 EntryType entry = (which == EntryType.TYPE_TEXT) ? new EntryType.Text() : ((which == EntryType.TYPE_HEADER) ? new EntryType.Header() : ((which == EntryType.TYPE_IMAGE) ? new EntryType.Image() : new EntryType.ImageGroup()));
                                 _listAdapter.add(entry);
@@ -248,6 +254,10 @@ public class MainPage extends AppCompatActivity {
                         }).show();
             }
         });
+    }
 
+
+    private void chooseNewImages() {
+        IntentHelper.showImagePicker(this, LoadNewImagesID, true);
     }
 }

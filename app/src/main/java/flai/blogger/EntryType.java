@@ -1,11 +1,11 @@
 package flai.blogger;
 
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+
+import flai.blogger.helpers.PathHelper;
 
 // either Text, Image, Header or ImageGroup
 public abstract class EntryType {
@@ -39,18 +39,8 @@ public abstract class EntryType {
                 return;
             }
 
-            String sourcePath = "";
-            String fileName = uri.getLastPathSegment();
-            if (uri.getPath().startsWith("content") || uri.getPath().startsWith("/external")) { // if the uri is content:// or /external path (this happens always when image is 'picked' with gallery)
-                final String[] proj = {MediaStore.Images.Media.DATA};
-
-                Cursor c = BloggerApplication.getAppContext().getContentResolver().query(uri, proj, null, null, null);
-                int column_index = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                c.moveToFirst();
-
-                sourcePath = c.getString(column_index);
-                fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
-            }
+            String sourcePath = UriHelper.getPath(BloggerApplication.getAppContext(), uri);
+            String fileName = PathHelper.getLastComponentOfPath(sourcePath);
 
             writer.write("image: " + fileName + "|" + text);
         }

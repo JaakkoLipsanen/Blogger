@@ -2,7 +2,6 @@ package flai.blogger;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -93,17 +92,8 @@ public class EntryListAdapter extends BaseAdapter {
             changeImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                getIntent.setType("image/*");
-
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("image/*");
-
-                Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
-
-                // give 100 + position as parameter (the 'position' can then later be calculated in MainPage.onActivityResult with value - 100)
-                ((Activity) parent.getContext()).startActivityForResult(chooserIntent, 100 + position);
+                    // give 100 + position as parameter (the 'position' can then later be calculated in MainPage.onActivityResult with value - 100)
+                    IntentHelper.showImagePicker((Activity)parent.getContext(), 100 + position, false);
                 }
             });
 
@@ -111,7 +101,6 @@ public class EntryListAdapter extends BaseAdapter {
             imageEntryView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                System.out.println("XXXASD");
                 if(onImageEntryImageClicked != null) {
                     onImageEntryImageClicked.onClick(v);
                 }

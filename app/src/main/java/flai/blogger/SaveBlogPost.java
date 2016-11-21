@@ -1,10 +1,8 @@
 package flai.blogger;
 
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.MediaStore;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -45,14 +43,14 @@ public class SaveBlogPost {
         File photoFolder = new File(PathHelper.TempFolderName + "/orig");
         photoFolder.mkdir();
 
-        final File postFile = new File(PathHelper.TempFolderName, "posts.txt");
+        final File postFile = new File(PathHelper.TempFolderName, "post.txt");
         try {
             postFile.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-                /* THEN, WRITE THE POSTS.TXT */
+                /* THEN, WRITE THE POST.TXT */
         try {
             FileOutputStream fileStream = new FileOutputStream(postFile);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileStream);
@@ -69,7 +67,7 @@ public class SaveBlogPost {
             outputWriter.write(System.getProperty("line.separator"));
 
             for(BlogEntry entry : blogPost.entries()) {
-                entry.write(outputWriter);
+                 entry.write(outputWriter);
                 outputWriter.write(System.getProperty("line.separator"));
             }
 
@@ -81,18 +79,8 @@ public class SaveBlogPost {
         /* THEN, SAVE ALL IMAGES TO /ORIG */
         for (Uri uri : blogPost.getAllImageUris()) {
 
-            String sourcePath = uri.getPath();
-            String fileName = uri.getLastPathSegment();
-            if (sourcePath.startsWith("/external") || sourcePath.startsWith("content")) { //  // if the uri is content:// or /external path (this happens always when image is 'picked' with gallery)
-                final String[] proj = {MediaStore.Images.Media.DATA};
-
-                Cursor c = BloggerApplication.getAppContext().getContentResolver().query(uri, proj, null, null, null);
-                int column_index = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                c.moveToFirst();
-                sourcePath = c.getString(column_index);
-
-                fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
-            }
+            String sourcePath = UriHelper.getPath(BloggerApplication.getAppContext(), uri);
+            String fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
 
             File destination = new File(photoFolder.getPath() + "/" + fileName);
             OutputStream out = null;

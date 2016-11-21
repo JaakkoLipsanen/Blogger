@@ -1,14 +1,14 @@
 package flai.blogger.model;
 
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import flai.blogger.BloggerApplication;
+import flai.blogger.UriHelper;
+import flai.blogger.helpers.PathHelper;
 
 /**
  * Created by Jaakko on 11.11.2016.
@@ -29,17 +29,8 @@ public class Image {
             return;
         }
 
-        String fileName = _imageUri.getLastPathSegment();
-        if (_imageUri.getPath().startsWith("content") || _imageUri.getPath().startsWith("/external")) { // if the uri is content:// or /external path (this happens always when image is 'picked' with gallery)
-            final String[] proj = {MediaStore.Images.Media.DATA};
-
-            Cursor c = BloggerApplication.getAppContext().getContentResolver().query(_imageUri, proj, null, null, null);
-            int column_index = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            c.moveToFirst();
-
-            String sourcePath = c.getString(column_index);
-            fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
-        }
+        String uriPath = UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri);
+        String fileName = PathHelper.getLastComponentOfPath(uriPath);
 
         try {
             writer.write(fileName);

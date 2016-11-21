@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import flai.blogger.helpers.IOHelper;
 import flai.blogger.helpers.PathHelper;
 import flai.blogger.model.BlogEntry;
 import flai.blogger.model.BlogPost;
@@ -33,7 +32,7 @@ public class LoadBlogPost {
             ZipEntry entry = null;
             ArrayList<Byte> byteCollector = new ArrayList<>();
             while((entry = zipInput.getNextEntry()) != null) { /* LOAD ALL FILES IN THE .ZIP */
-                if(entry.getName().equals("/posts.txt")) {
+                if(entry.getName().equals("/post.txt")) {
                     final int BUFFER = 8192;
                     byte bytes[] = new byte[BUFFER];
 
@@ -85,7 +84,7 @@ public class LoadBlogPost {
         return null;
     }
 
-    /* PARSES THE posts.txt from string (that contains the content of posts.txt */
+    /* PARSES THE post.txt from string (that contains the content of posts.txt */
     private static BlogPost parsePostsFile(String postsFileContent) throws IOException {
 
         String[] lines = postsFileContent.split(System.getProperty("line.separator"));

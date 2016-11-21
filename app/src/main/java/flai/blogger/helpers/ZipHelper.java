@@ -12,23 +12,24 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipHelper {
     // recursive zipping method. zips the folder and sub folders and files
-    public static void zipSubFolder(ZipOutputStream out, File folder, int basePathLength) throws IOException {
+    public static void zipFolderRecursively(ZipOutputStream out, File folder, int basePathLength) throws IOException {
         final int BUFFER = 2048;
 
         File[] fileList = folder.listFiles();
-        BufferedInputStream origin = null;
         for (File file : fileList) {
             if (file.isDirectory()) {
-                zipSubFolder(out, file, basePathLength);
+                zipFolderRecursively(out, file, basePathLength);
             } else {
                 byte data[] = new byte[BUFFER];
                 String unmodifiedFilePath = file.getPath();
                 String relativePath = unmodifiedFilePath.substring(basePathLength);
 
-                FileInputStream fi = new FileInputStream(unmodifiedFilePath);
-                origin = new BufferedInputStream(fi, BUFFER);
                 ZipEntry entry = new ZipEntry(relativePath);
                 out.putNextEntry(entry);
+
+                FileInputStream fi = new FileInputStream(unmodifiedFilePath);
+                BufferedInputStream origin = new BufferedInputStream(fi, BUFFER);
+
                 int count;
                 while ((count = origin.read(data, 0, BUFFER)) != -1) {
                     out.write(data, 0, count);

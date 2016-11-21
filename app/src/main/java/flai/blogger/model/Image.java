@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import flai.blogger.BloggerApplication;
-import flai.blogger.UriHelper;
+import flai.blogger.helpers.UriHelper;
 import flai.blogger.helpers.PathHelper;
 
 /**

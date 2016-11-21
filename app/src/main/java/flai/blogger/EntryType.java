@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import flai.blogger.helpers.PathHelper;
+import flai.blogger.helpers.UriHelper;
 
 // either Text, Image, Header or ImageGroup
 public abstract class EntryType {

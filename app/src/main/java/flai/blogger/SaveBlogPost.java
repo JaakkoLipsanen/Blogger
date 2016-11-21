@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 
 import flai.blogger.helpers.IOHelper;
 import flai.blogger.helpers.PathHelper;
+import flai.blogger.helpers.UriHelper;
 import flai.blogger.helpers.ZipHelper;
 import flai.blogger.model.BlogEntry;
 import flai.blogger.model.BlogPost;
@@ -110,31 +111,18 @@ public class SaveBlogPost {
 
         /* FINALLY, SAVE TO .ZIP */
         try {
-            final int BUFFER = 2048;
 
             // take the title, replace all spaces with hyphens and remove all special characters
             final String fileName = blogPost.getTitle().replace(" ", "-").replaceAll("/[^A-Za-z0-9 ]/", "");
 
-            final File sourceFile = tempFolder;
+            final File sourceFolder = tempFolder;
             final String toLocation = PathHelper.FlaiFolderName + "/" + fileName + ".zip";
 
-            BufferedInputStream origin = null;
             FileOutputStream dest = new FileOutputStream(toLocation);
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
-                    dest));
-            if (sourceFile.isDirectory()) {
-                ZipHelper.zipSubFolder(out, sourceFile, sourceFile.getPath().length());
-            } else {
-                byte data[] = new byte[BUFFER];
-                FileInputStream fi = new FileInputStream(tempFolder);
-                origin = new BufferedInputStream(fi, BUFFER);
-                ZipEntry entry = new ZipEntry(PathHelper.getLastComponentOfPath(PathHelper.TempFolderName));
-                out.putNextEntry(entry);
-                int count;
-                while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                    out.write(data, 0, count);
-                }
-            }
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+
+            ZipHelper.zipFolderRecursively(out, sourceFolder, sourceFolder.getPath().length());
+
             out.close();
         } catch (Exception e) {
             e.printStackTrace();

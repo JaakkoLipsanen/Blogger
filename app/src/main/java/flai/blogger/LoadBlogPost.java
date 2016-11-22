@@ -14,6 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import flai.blogger.helpers.PathHelper;
+import flai.blogger.helpers.ZipHelper;
 import flai.blogger.model.BlogEntry;
 import flai.blogger.model.BlogPost;
 import flai.blogger.model.DayRange;
@@ -24,55 +25,39 @@ import flai.blogger.model.Image;
  */
 public class LoadBlogPost {
     public static BlogPost loadBlogPost(Uri uri) {
-        try {
-            InputStream inputStream = new BufferedInputStream(BloggerApplication.getAppContext().getContentResolver().openInputStream(uri));
-            ZipInputStream zipInput = new ZipInputStream(inputStream);
-            String postsFileContent = "";
 
-            ZipEntry entry = null;
-            ArrayList<Byte> byteCollector = new ArrayList<>();
+        new File(PathHelper.ImageFolderName).mkdirs();
+        try(InputStream inputStream = new BufferedInputStream(BloggerApplication.getAppContext().getContentResolver().openInputStream(uri));
+            ZipInputStream zipInput = new ZipInputStream(inputStream)) {
+
+            String postsFileContent = "";
+            ZipEntry entry;
             while((entry = zipInput.getNextEntry()) != null) { /* LOAD ALL FILES IN THE .ZIP */
                 if(entry.getName().equals("/post.txt")) {
-                    final int BUFFER = 8192;
-                    byte bytes[] = new byte[BUFFER];
+                    final int BUFFER_SIZE = 8192;
 
-                    int count = 0;
-                    while ((count = zipInput.read(bytes)) != -1) {
-                        for (int i = 0; i < count; i++) {
-                            byteCollector.add(bytes[i]);
-                        }
-                    }
-
-                    byte[] bytes2 = new byte[byteCollector.size()];
-                    for (int i = 0; i < byteCollector.size(); i++) {
-                        bytes2[i] = byteCollector.get(i).byteValue();
-                    }
-
-                    postsFileContent = new String(Arrays.copyOfRange(bytes2, 0, bytes2.length), "UTF-8");
-
+                    byte bytes[] = ZipHelper.readBytesFromZipEntry(zipInput, BUFFER_SIZE);
+                    postsFileContent = new String(Arrays.copyOfRange(bytes, 0, bytes.length), "UTF-8");
                 }
                 else if(entry.getName().startsWith("/orig/")) { // aka image!!
 
-                    new File(PathHelper.ImageFolderName).mkdirs();
                     final File imageFile = new File(PathHelper.ImageFolderName + "/" + PathHelper.getLastComponentOfPath(entry.getName())); /* SAVE IMAGES TO /flai/images_all */
                     imageFile.delete(); // make sure deleted
                     imageFile.createNewFile();
 
-                    FileOutputStream outputStream = new FileOutputStream(imageFile);
+                    try(FileOutputStream outputStream = new FileOutputStream(imageFile)) {
+                        final int BUFFER_SIZE = 2048;
+                        byte buffer[] = new byte[BUFFER_SIZE];
 
-
-                    final int BUFFER = 2048;
-                    byte byteData[] = new byte[BUFFER];
-                    int count = 0;
-                    while ((count = zipInput.read(byteData)) != -1)
-                    {
-                        outputStream.write(byteData, 0, count);
+                        int count;
+                        while ((count = zipInput.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, count);
+                        }
                     }
-                    outputStream.close();
+
                     zipInput.closeEntry();
                 }
             }
-            zipInput.close();
 
             BlogPost post = LoadBlogPost.parsePostsFile(postsFileContent);
             return post;

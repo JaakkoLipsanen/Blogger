@@ -129,7 +129,7 @@ public class MainPage extends AppCompatActivity {
             }
             else if(entry instanceof  BlogEntry.ImageEntry) {
                 BlogEntry.ImageEntry imageEntry = (BlogEntry.ImageEntry) entry;
-                _listAdapter.add(new EntryType.Image(imageEntry.getImage().getImageUri()));
+                _listAdapter.add(new EntryType.Image(imageEntry.getImage().getImageUri(), imageEntry.getImageText()));
             }
         }
 
@@ -183,7 +183,6 @@ public class MainPage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ImageView img = (ImageView)v;
-                System.out.println("onClick!!");
                 if(img != null) {
                     latestImageEntryClickedImage.setImageDrawable(img.getDrawable());
                 }

@@ -25,6 +25,7 @@ public abstract class EntryType {
 
         public Image() { }
         public Image(Uri u) { uri = u; }
+        public Image(Uri u, String t) { uri = u; text = t; }
 
         @Override
         public int getEntryType() {

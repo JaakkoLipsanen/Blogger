@@ -17,6 +17,11 @@ public class BlogPost {
     private ArrayList<BlogEntry> _entries;
     private Image _mainImage;
 
+
+    public BlogPost() {
+        this("Default", new DayRange(1, 2), new ArrayList<BlogEntry>(), new Image(null));
+    }
+
     public BlogPost(String title, DayRange dayRange, List<BlogEntry> entries, Image mainImage) {
         _title = title;
         _dayRange = dayRange;
@@ -25,16 +30,13 @@ public class BlogPost {
         _mainImage = mainImage;
     }
 
-    public String getTitle() {
-        return _title;
-    }
+    public String getTitle() { return _title; }
+    public void setTitle(String title) { _title = title; }
 
-    public DayRange getDayRange() {
-        return _dayRange;
-    }
+    public DayRange getDayRange() {  return _dayRange; }
 
     public List<BlogEntry> entries() {
-        return Collections.unmodifiableList(_entries);
+        return _entries;
     }
 
     public Image getMainImage() {

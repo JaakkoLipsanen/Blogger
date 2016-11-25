@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +20,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import flai.blogger.helpers.IOHelper;
+import flai.blogger.helpers.BitmapHelper;
+import flai.blogger.helpers.MiscHelper;
+import flai.blogger.helpers.IntentHelper;
 import flai.blogger.helpers.PermissionHelper;
 import flai.blogger.helpers.UIHelper;
 import flai.blogger.model.BlogEntry;
@@ -34,8 +38,14 @@ public class MainPage extends AppCompatActivity {
     private static final int LoadBlogPostID = 2;
     private static final int LoadNewImagesID = 3;
 
+    private BlogPost _currentBlogPost = new BlogPost();
     private EntryListAdapter _listAdapter;
     private ListView _entryListView;
+
+    private EditText _blogPostTitleEditText;
+    private EditText _blogPostStartDayEditText;
+    private EditText _blogPostEndDayEditText;
+    private ImageView _blogPostMainImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,16 +53,70 @@ public class MainPage extends AppCompatActivity {
         PermissionHelper.requestExternalStoragePermissions(this);
 
         setContentView(R.layout.activity_main_page);
-
-        _listAdapter = new EntryListAdapter();
+        _listAdapter = new EntryListAdapter(_currentBlogPost);
         _entryListView = (ListView) findViewById(R.id.itemList);
         _entryListView.setAdapter(_listAdapter);
+
+        _blogPostTitleEditText = ((EditText)findViewById(R.id.title_edit_text));
+        _blogPostStartDayEditText = ((EditText)findViewById(R.id.date_range_min));
+        _blogPostEndDayEditText = ((EditText)findViewById(R.id.date_range_max));
+        _blogPostMainImageView = (ImageButton) findViewById(R.id.mainImageButton);;
 
         this.setupAddNewEntryButton();
         this.setupChangeMainImageButton();
         this.setupSaveButton();
         this.setupLoadButton();
         this.setupLastImageClickedImage();
+
+        _blogPostTitleEditText.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        _currentBlogPost.setTitle(s.toString());
+                    }
+                });
+
+        _blogPostStartDayEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                Integer day = MiscHelper.parseIntegerOrNull(s.toString());
+                _currentBlogPost.getDayRange().StartDate = (day != null) ? day : 0;
+            }
+        });
+
+        _blogPostEndDayEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                Integer day = MiscHelper.parseIntegerOrNull(s.toString());
+                _currentBlogPost.getDayRange().EndDate = (day != null) ? day : 0;
+            }
+        });
     }
 
     /* Called when loading blog post or after selecting an image */
@@ -64,8 +128,8 @@ public class MainPage extends AppCompatActivity {
 
         Uri uri = data.getData();
         if(requestCode == LoadBlogPostID) { /* Loading new blog post */
-            BlogPost blogPost = LoadBlogPost.loadBlogPost(uri);
-            this.initializeUiFromBlogPost(blogPost);
+            _currentBlogPost = LoadBlogPost.loadBlogPost(uri);
+            this.refreshUI();
         }
         else if (requestCode == ChangeMainImageID) { /* Changing main image */
             this.changeMainImage(uri);
@@ -84,7 +148,9 @@ public class MainPage extends AppCompatActivity {
     }
 
     private void loadImage(Uri uri)  {
-        _listAdapter.add(new EntryType.Image(uri));
+        _currentBlogPost.entries().add(new BlogEntry.ImageEntry(new Image(uri)));
+        _listAdapter.refresh();
+
         UIHelper.setListViewHeightBasedOnItems(_entryListView);
     }
 
@@ -95,63 +161,39 @@ public class MainPage extends AppCompatActivity {
     }
 
     private void changeEntryImage(Uri uri, int entryPosition) {
-        EntryType.Image entry = (EntryType.Image) _listAdapter.getItem(entryPosition);
-        entry.uri = uri;
+        BlogEntry.ImageEntry entry = (BlogEntry.ImageEntry) _listAdapter.getItem(entryPosition);
+        entry.getImage().setImageUri(uri);
 
         ImageView imageEntryView = (ImageView) _listAdapter.getViewByPosition(entryPosition, _entryListView).findViewById(R.id.image_entry_image);
-        Bitmap bitmap = IOHelper.loadImage(uri, 384, 384);
+        Bitmap bitmap = BitmapHelper.decodeBitmapScaled(uri, 384);
         imageEntryView.setImageBitmap(bitmap);
     }
 
     private void changeMainImage(Uri uri) {
-        _listAdapter.MainImage.uri = uri;
+        _currentBlogPost.getMainImage().setImageUri(uri);
 
-        ImageButton mainButton = (ImageButton) findViewById(R.id.mainImageButton);
-        Bitmap bitmap = IOHelper.loadImage(uri, 160, 160);
-        mainButton.setImageBitmap(bitmap);
+        Bitmap bitmap = BitmapHelper.decodeBitmapScaled(uri, 160);
+        _blogPostMainImageView.setImageBitmap(bitmap);
     }
 
-    private void initializeUiFromBlogPost(BlogPost blogPost) {
-        _listAdapter.reset();
+    private void refreshUI() {
+        _listAdapter.setBlogPost(_currentBlogPost);
 
-        this.setBlogTitle(blogPost.getTitle());
-        this.setBlogDayRange(blogPost.getDayRange());
-        this.changeMainImage(blogPost.getMainImage().getImageUri());
-
-        for(BlogEntry entry : blogPost.entries()) {
-            if(entry instanceof  BlogEntry.TextEntry) {
-                BlogEntry.TextEntry textEntry = (BlogEntry.TextEntry)entry;
-                _listAdapter.add(new EntryType.Text(textEntry.getText()));
-            }
-            else if(entry instanceof  BlogEntry.HeaderEntry) {
-                BlogEntry.HeaderEntry headerEntry = (BlogEntry.HeaderEntry)entry;
-                _listAdapter.add(new EntryType.Header(headerEntry.getHeaderText()));
-            }
-            else if(entry instanceof  BlogEntry.ImageEntry) {
-                BlogEntry.ImageEntry imageEntry = (BlogEntry.ImageEntry) entry;
-                _listAdapter.add(new EntryType.Image(imageEntry.getImage().getImageUri(), imageEntry.getImageText()));
-            }
-        }
+        this.setBlogTitle(_currentBlogPost.getTitle());
+        this.setBlogDayRange(_currentBlogPost.getDayRange());
+        this.changeMainImage(_currentBlogPost.getMainImage().getImageUri());
 
         UIHelper.setListViewHeightBasedOnItems(_entryListView);
     }
 
-    private String getBlogTitle() {
-        return ((EditText)findViewById(R.id.title_edit_text)).getText().toString();
-    }
-
-    private DayRange getBlogDayRange() {
-        return DayRange.parse(((EditText) findViewById(R.id.date_range_min)).getText().toString() + "-" + ((EditText) findViewById(R.id.date_range_max)).getText().toString());
-    }
-
     private void setBlogTitle(String title) {
-        ((EditText)findViewById(R.id.title_edit_text)).setText(title);
+        _blogPostTitleEditText.setText(title);
     }
 
     private void setBlogDayRange(DayRange dayRange){ // format == "X-Y"
-        ((EditText)findViewById(R.id.date_range_min)).setText(Integer.toString(dayRange.StartDate));
-        ((EditText)findViewById(R.id.date_range_max)).setText(Integer.toString(dayRange.EndDate));
-        }
+        _blogPostStartDayEditText.setText(Integer.toString(dayRange.StartDate));
+        _blogPostEndDayEditText.setText(Integer.toString(dayRange.EndDate));
+    }
 
     /* DUNNO WHAT THIS IS, AUTO GENERATED */
     @Override
@@ -205,19 +247,13 @@ public class MainPage extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BlogPost blogPost = new BlogPost(
-                        getBlogTitle(),
-                        getBlogDayRange(),
-                        _listAdapter.getBlogEntries(),
-                        new Image(_listAdapter.MainImage.uri));
-
-                SaveBlogPost.saveBlogPost(blogPost);
+                SaveBlogPost.saveBlogPost(_currentBlogPost);
             }
         });
     }
 
     private void setupChangeMainImageButton() {
-        findViewById(R.id.mainImageButton).setOnClickListener(new View.OnClickListener() {
+        _blogPostMainImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 IntentHelper.showImagePicker(MainPage.this, ChangeMainImageID, false);
@@ -230,6 +266,10 @@ public class MainPage extends AppCompatActivity {
         addNewEntryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final int TextIndex = 0;
+                final int HeaderIndex = 1;
+                final int ImageIndex = 2;
+
                 final String[] items = new String[]{"Text", "Header", "Image"};
                 new AlertDialog.Builder(view.getContext())
                         .setTitle("New entry")
@@ -239,16 +279,20 @@ public class MainPage extends AppCompatActivity {
 
                                 // on entry type == image, don't add a new entry but
                                 // show image picker and allow choosing multiple images
-                                if (which == EntryType.TYPE_IMAGE) {
+                                if (which == ImageIndex) {
                                     chooseNewImages();
                                     return;
                                 }
+                                else {
+                                    if (which == TextIndex) {
+                                        _currentBlogPost.entries().add(new BlogEntry.TextEntry(""));
+                                    }
+                                    else { // header
+                                        _currentBlogPost.entries().add(new BlogEntry.HeaderEntry(""));
+                                    }
 
-                                // 0 == text, 1 == header, 2 == image, 3 == image group
-                                EntryType entry = (which == EntryType.TYPE_TEXT) ? new EntryType.Text() : ((which == EntryType.TYPE_HEADER) ? new EntryType.Header() : ((which == EntryType.TYPE_IMAGE) ? new EntryType.Image() : new EntryType.ImageGroup()));
-                                _listAdapter.add(entry);
-
-                                UIHelper.setListViewHeightBasedOnItems(_entryListView);
+                                    UIHelper.setListViewHeightBasedOnItems(_entryListView);
+                                }
                             }
                         }).show();
             }

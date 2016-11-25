@@ -12,6 +12,9 @@ public abstract class BlogEntry {
     public static class ImageEntry extends BlogEntry {
         private Image _image;
         private String _imageText;
+        public ImageEntry(Image image) {
+            this(image, "");
+        }
         public ImageEntry(Image image, String imageText) {
             _image = image;
             _imageText = imageText;
@@ -26,13 +29,12 @@ public abstract class BlogEntry {
             }
         }
 
-        public Image getImage() {
-            return _image;
-        }
+        public Image getImage() { return _image; }
 
         public String getImageText() {
             return _imageText;
         }
+        public void setImageText(String value) { _imageText = value; }
     }
 
     public static class HeaderEntry extends BlogEntry {
@@ -47,9 +49,8 @@ public abstract class BlogEntry {
             writer.write("header: " + _headerText);
         }
 
-        public String getHeaderText() {
-            return _headerText;
-        }
+        public String getHeaderText() { return _headerText; }
+        public void setHeaderText(String value) { _headerText = value; }
     }
 
     public static class TextEntry extends BlogEntry {
@@ -63,8 +64,7 @@ public abstract class BlogEntry {
             writer.write("text: " + _text);
         }
 
-        public String getText() {
-            return _text;
-        }
+        public String getText() { return _text; }
+        public void setText(String value) { _text = value; }
     }
 }

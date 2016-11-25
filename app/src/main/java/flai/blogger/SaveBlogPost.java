@@ -3,6 +3,7 @@ package flai.blogger;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -44,11 +45,11 @@ public class SaveBlogPost {
         try {
             postFile.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("blogger", "SaveBlogPost: creating post.txt file failed" +  Log.getStackTraceString(e));
             return;
         }
 
-                /* THEN, WRITE THE POST.TXT */
+        /* THEN, WRITE THE POST.TXT */
         try(FileOutputStream fileStream = new FileOutputStream(postFile);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileStream)) {
 
@@ -63,12 +64,12 @@ public class SaveBlogPost {
             outputWriter.write(System.getProperty("line.separator"));
 
             for(BlogEntry entry : blogPost.entries()) {
-                 entry.write(outputWriter);
+                entry.write(outputWriter);
                 outputWriter.write(System.getProperty("line.separator"));
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("blogger", "SaveBlogPost: writing post.txt file failed: " + Log.getStackTraceString(e));
             return;
         }
 
@@ -90,7 +91,7 @@ public class SaveBlogPost {
                 bitmap.recycle();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("blogger", "SaveBlogPost: saving image (" + fileName + ") failed: " + Log.getStackTraceString(e));
                 return;
             }
         }
@@ -107,7 +108,7 @@ public class SaveBlogPost {
 
             ZipHelper.zipFolderRecursively(out, sourceFolder, sourceFolder.getPath().length());
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("blogger", "SaveBlogPost: creating zip file failed: " + Log.getStackTraceString(e));
             return;
         }
     }

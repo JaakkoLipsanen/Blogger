@@ -1,4 +1,4 @@
-package flai.blogger;
+package flai.blogger.helpers;
 
 import android.app.Activity;
 import android.content.ComponentName;

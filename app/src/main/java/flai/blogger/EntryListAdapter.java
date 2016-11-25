@@ -2,11 +2,9 @@ package flai.blogger;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,44 +14,51 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
+import flai.blogger.helpers.IntentHelper;
 import flai.blogger.model.BlogEntry;
-import flai.blogger.model.Image;
+import flai.blogger.model.BlogPost;
 
-/**
- * Created by Jaakko on 04.04.2016.
- */
+
+// TODO: Instead of allowing images with "null", create some kind of "DefaultImage" ??
 public class EntryListAdapter extends BaseAdapter {
-    private final ArrayList<EntryType> list = new ArrayList<>();
-    public EntryType.Image MainImage = new EntryType.Image();
+    private static class ImageEntryViewHolder {
+        public Button ChangeImageButton;
+        public ImageView ImageView;
+        public EditText ImageText;
+    }
 
+    private BlogPost _currentBlogPost = new BlogPost();
     public View.OnClickListener onImageEntryImageClicked = null;
+
+    public EntryListAdapter(BlogPost blogPost) {
+        _currentBlogPost = blogPost;
+    }
+
+    public void setBlogPost(BlogPost blogPost) {
+        _currentBlogPost = blogPost;
+        this.notifyDataSetChanged();
+    }
 
     @Override
     public int getViewTypeCount() {
-        return 4; // image, image group, header, text, in that order
+        return 3; // image, header, text, in that order
     }
 
     // not used really
     @Override
     public int getItemViewType(int position) {
-        EntryType item = this.getItem(position);
-        return item.getEntryType();
+        BlogEntry item = this.getItem(position);
+        return (item instanceof BlogEntry.TextEntry) ? 0 : (item instanceof  BlogEntry.HeaderEntry) ? 1 : 2;
     }
 
     @Override
     public int getCount() {
-        return list.size();
+        return _currentBlogPost.entries().size();
     }
 
     @Override
-    public EntryType getItem(int position) {
-        return list.get(position);
+    public BlogEntry getItem(int position) {
+        return _currentBlogPost.entries().get(position);
     }
 
     @Override
@@ -65,89 +70,90 @@ public class EntryListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         View entryView = convertView;
-        final EntryType entry = list.get(position);
+        final BlogEntry entry = _currentBlogPost.entries().get(position);
 
         LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if(entry instanceof EntryType.Image) {
+        if(entry instanceof BlogEntry.ImageEntry) {
+            final BlogEntry.ImageEntry imageEntry = (BlogEntry.ImageEntry)entry;
 
-            entryView = inflater.inflate(R.layout.image_entry_view, parent, false);
+            ImageEntryViewHolder viewHolder;
+            if(entryView == null) {
+                entryView = inflater.inflate(R.layout.image_entry_view, parent, false);
 
-            final EntryType.Image imgE = (EntryType.Image)entry;
-            EditText textField = (EditText)entryView.findViewById(R.id.image_entry_text);
-            textField.setText(imgE.text);
+                viewHolder = new ImageEntryViewHolder();
+                viewHolder.ChangeImageButton = (Button)entryView.findViewById(R.id.change_image_button);
+                viewHolder.ImageView = (ImageView) entryView.findViewById(R.id.image_entry_image);
+                viewHolder.ImageText = (EditText)entryView.findViewById(R.id.image_entry_text);
 
-            textField.addTextChangedListener(new TextWatcher() {
+                entryView.setTag(viewHolder);
+            }
+            else {
+                viewHolder = (ImageEntryViewHolder)entryView.getTag();
+            }
+
+            viewHolder.ImageText.setText(imageEntry.getImageText());
+            viewHolder.ImageText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
                 @Override
                 public void afterTextChanged(Editable s) { }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    imgE.text = s.toString(); // update the entry's text when textField changes
+                    imageEntry.setImageText(s.toString()); // update the entry's text when textField changes
                 }
             });
 
-            Button changeImageButton = (Button)entryView.findViewById(R.id.change_image_button);
-            changeImageButton.setOnClickListener(new View.OnClickListener() {
+            viewHolder.ChangeImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     // give 100 + position as parameter (the 'position' can then later be calculated in MainPage.onActivityResult with value - 100)
-                    IntentHelper.showImagePicker((Activity)parent.getContext(), 100 + position, false);
+                    IntentHelper.showImagePicker((Activity) parent.getContext(), 100 + position, false);
                 }
             });
 
-            final ImageView imageEntryView = (ImageView) entryView.findViewById(R.id.image_entry_image);
-            imageEntryView.setOnClickListener(new View.OnClickListener() {
+            viewHolder.ImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                if(onImageEntryImageClicked != null) {
-                    onImageEntryImageClicked.onClick(v);
-                }
+                    if (onImageEntryImageClicked != null) {
+                        onImageEntryImageClicked.onClick(v);
+                    }
                 }
             });
 
-            // set the entry's image to ImageView
-            Uri imageUri = ((EntryType.Image) entry).uri;
-            if(imageUri != null) {
-                InputStream inputStream = null;
-                try {
-                    inputStream = parent.getContext().getContentResolver().openInputStream(imageUri);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    System.out.println("ERROR: ENTRYLISTADAPTER.GETVIEWISSÄ KUSEE");
-                    return entryView;
-                }
 
-
-                imageEntryView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream), 384, 384, false));
-            }
+            viewHolder.ImageView.setImageBitmap(imageEntry.getImage().getDisplayBitmap());
+            Log.w("blogger", "updating image entry view");
         }
-        else if(entry instanceof  EntryType.Text) {
-            entryView = inflater.inflate(R.layout.text_entry_view, parent, false);
+        else if(entry instanceof BlogEntry.TextEntry) {
+            if(entryView == null) {
+                entryView = inflater.inflate(R.layout.text_entry_view, parent, false);
+            }
 
-            final EntryType.Text textEntry = (EntryType.Text)entry;
+            final BlogEntry.TextEntry textEntry = (BlogEntry.TextEntry)entry;
             EditText textField = (EditText)entryView.findViewById(R.id.text_entry_text);
-            textField.setText(textEntry.text);
+            textField.setText(textEntry.getText());
 
             textField.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
                 @Override
                 public void afterTextChanged(Editable s) { }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    textEntry.text = s.toString(); // update the entry's text when textField changes
+                    textEntry.setText(s.toString()); // update the entry's text when textField changes
                 }
             });
         }
-        else if(entry instanceof  EntryType.Header) {
+        else if(entry instanceof BlogEntry.HeaderEntry) {
             entryView = inflater.inflate(R.layout.header_entry_view, parent, false);
 
-            final EntryType.Header textEntry = (EntryType.Header)entry;
+            final BlogEntry.HeaderEntry textEntry = (BlogEntry.HeaderEntry)entry;
             EditText textField = (EditText)entryView.findViewById(R.id.text_entry_text);
-            textField.setText(textEntry.header);
+            textField.setText(textEntry.getHeaderText());
 
             textField.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -157,7 +163,7 @@ public class EntryListAdapter extends BaseAdapter {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    textEntry.header = s.toString(); // update the entry's text when textField changes
+                    textEntry.setHeaderText(s.toString()); // update the entry's text when textField changes
                 }
             });
         }
@@ -173,9 +179,9 @@ public class EntryListAdapter extends BaseAdapter {
             public void onClick(View v) {
                 if(position == 0) return; // if the item is already on top, then ignore
 
-                EntryType entryOneHigher = list.get(position - 1);
-                list.set(position - 1, entry);
-                list.set(position, entryOneHigher);
+                BlogEntry entryOneHigher = _currentBlogPost.entries().get(position - 1);
+                _currentBlogPost.entries().set(position - 1, entry);
+                _currentBlogPost.entries().set(position, entryOneHigher);
 
                 notifyDataSetChanged();
             }
@@ -184,11 +190,12 @@ public class EntryListAdapter extends BaseAdapter {
         moveDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(position == list.size() - 1) return; // if the item is already on bottom, then ignore
+                if (position == _currentBlogPost.entries().size() - 1)
+                    return; // if the item is already on bottom, then ignore
 
-                EntryType entryOneLower = list.get(position + 1);
-                list.set(position + 1, entry);
-                list.set(position, entryOneLower);
+                BlogEntry entryOneLower = _currentBlogPost.entries().get(position + 1);
+                _currentBlogPost.entries().set(position + 1, entry);
+                _currentBlogPost.entries().set(position, entryOneLower);
 
                 notifyDataSetChanged();
             }
@@ -197,7 +204,7 @@ public class EntryListAdapter extends BaseAdapter {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                list.remove(position);
+                _currentBlogPost.entries().remove(position);
 
                 notifyDataSetChanged();
             }
@@ -206,25 +213,6 @@ public class EntryListAdapter extends BaseAdapter {
         return entryView;
     }
 
-    public void add(EntryType entry) {
-        list.add(entry);
-        this.notifyDataSetChanged();
-    }
-
-    // returns all image uri's in the entries, including MainImage
-    public HashSet<Uri> allImageUris() {
-        HashSet<Uri> uris = new HashSet<>();
-        for(EntryType entry : list) {
-            if(entry instanceof EntryType.Image) {
-                uris.add(((EntryType.Image)entry).uri);
-            }
-        }
-
-        uris.add(this.MainImage.uri);
-        return uris;
-    }
-
-    // gets the view of the entry in 'pos'
     public View getViewByPosition(int pos, ListView listView) {
         final int firstListItemPosition = listView.getFirstVisiblePosition();
         final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
@@ -237,28 +225,7 @@ public class EntryListAdapter extends BaseAdapter {
         }
     }
 
-    // reset. called when blog post is loaded from file
-    public void reset() {
-        this.list.clear();
-        this.MainImage.uri = null;
+    public void refresh() {
         this.notifyDataSetChanged();
-    }
-
-    public List<BlogEntry> getBlogEntries() {
-        ArrayList<BlogEntry> blogEntries = new ArrayList<>();
-        for(EntryType entry : list) {
-            if(entry.getEntryType() == EntryType.TYPE_TEXT) {
-                blogEntries.add(new BlogEntry.TextEntry(((EntryType.Text)entry).text));
-            }
-            else if(entry.getEntryType() == EntryType.TYPE_HEADER) {
-                blogEntries.add(new BlogEntry.HeaderEntry(((EntryType.Header)entry).header));
-            }
-            else if(entry.getEntryType() == EntryType.TYPE_IMAGE) {
-                EntryType.Image imageEntry = (EntryType.Image)entry;
-                blogEntries.add(new BlogEntry.ImageEntry(new Image(imageEntry.uri), imageEntry.text));
-            }
-        }
-
-        return blogEntries;
     }
 }

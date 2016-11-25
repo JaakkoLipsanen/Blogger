@@ -54,6 +54,10 @@ public class LoadBlogPost {
                             outputStream.write(buffer, 0, count);
                         }
                     }
+                    catch(Exception e) {
+                        Log.e("blogger", "Image load failed from /orig/: " + Log.getStackTraceString(e));
+                        // continue, ignore the failed image..?s
+                    }
 
                     zipInput.closeEntry();
                 }
@@ -63,7 +67,7 @@ public class LoadBlogPost {
             return post;
 
         } catch (Exception e) {
-            Log.e("blogger", Log.getStackTraceString(e));
+            Log.e("blogger", "LoadBlogPost failed: " + Log.getStackTraceString(e));
         }
 
         return null;

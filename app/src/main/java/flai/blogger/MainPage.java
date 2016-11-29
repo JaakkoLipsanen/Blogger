@@ -165,14 +165,14 @@ public class MainPage extends AppCompatActivity {
         entry.getImage().setImageUri(uri);
 
         ImageView imageEntryView = (ImageView) _listAdapter.getViewByPosition(entryPosition, _entryListView).findViewById(R.id.image_entry_image);
-        Bitmap bitmap = BitmapHelper.decodeBitmapScaled(uri, 384);
+        Bitmap bitmap = BitmapHelper.decodeBitmapScaledApproximately(uri, 384);
         imageEntryView.setImageBitmap(bitmap);
     }
 
     private void changeMainImage(Uri uri) {
         _currentBlogPost.getMainImage().setImageUri(uri);
 
-        Bitmap bitmap = BitmapHelper.decodeBitmapScaled(uri, 160);
+        Bitmap bitmap = BitmapHelper.decodeBitmapScaledApproximately(uri, 160);
         _blogPostMainImageView.setImageBitmap(bitmap);
     }
 

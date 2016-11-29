@@ -123,7 +123,7 @@ public class EntryListAdapter extends BaseAdapter {
             });
 
 
-            viewHolder.ImageView.setImageBitmap(imageEntry.getImage().getDisplayBitmap());
+            viewHolder.ImageView.setImageBitmap(imageEntry.getImage().getThumbnail());
             Log.w("blogger", "updating image entry view");
         }
         else if(entry instanceof BlogEntry.TextEntry) {

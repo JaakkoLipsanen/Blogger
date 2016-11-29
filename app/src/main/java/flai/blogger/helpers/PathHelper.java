@@ -8,6 +8,8 @@ import android.os.Environment;
 public class PathHelper {
     public static final String FlaiFolderName = Environment.getExternalStorageDirectory() + "/flai";
     public static final String ImageFolderName = PathHelper.FlaiFolderName + "/images_all";
+    public static final String ThumbnailCacheFolder = PathHelper.ImageFolderName + "/thumbnails"; // holding the thumbnail
+    public static final String HighQualityImageCacheFolder = PathHelper.ImageFolderName + "/1080p"; // holding the 1080p images
     public static final String TempFolderName = PathHelper.FlaiFolderName + "/temp_folder";
 
     /*

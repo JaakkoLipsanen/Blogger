@@ -1,5 +1,6 @@
 package flai.blogger;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.io.BufferedOutputStream;
@@ -17,6 +18,7 @@ import flai.blogger.helpers.UriHelper;
 import flai.blogger.helpers.ZipHelper;
 import flai.blogger.model.BlogEntry;
 import flai.blogger.model.BlogPost;
+import flai.blogger.model.ImageQuality;
 
 /**
  * Created by Jaakko on 11.11.2016.
@@ -99,7 +101,7 @@ public class SaveBlogPost {
             String fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
 
             final int ImageMinDimensionSize = 1080;
-            File sourceFile = BitmapHelper.loadFromStorageCacheOrCreateFile(Uri.fromFile(new File(sourcePath)), PathHelper.HighQualityImageCacheFolder, ImageMinDimensionSize);
+            File sourceFile = BitmapHelper.loadFromStorageCacheOrCreateFile(Uri.fromFile(new File(sourcePath)), PathHelper.HighQualityImageCacheFolder, ImageMinDimensionSize, ImageQuality.Original, false);
             File destinationFile = new File(destinationFolder.getPath() + "/" + fileName);
             destinationFile.getParentFile().mkdirs(); /* TODO: Okei, tää oli siin antin muokkaamssa commitissa. En tiiä miksi, mut jos jotai häikkää nii kato tätä */
 

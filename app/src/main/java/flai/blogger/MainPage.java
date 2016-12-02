@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +19,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import flai.blogger.helpers.BitmapHelper;
 import flai.blogger.helpers.MiscHelper;
 import flai.blogger.helpers.IntentHelper;
 import flai.blogger.helpers.PermissionHelper;
@@ -165,15 +163,12 @@ public class MainPage extends AppCompatActivity {
         entry.getImage().setImageUri(uri);
 
         ImageView imageEntryView = (ImageView) _listAdapter.getViewByPosition(entryPosition, _entryListView).findViewById(R.id.image_entry_image);
-        Bitmap bitmap = BitmapHelper.decodeBitmapScaledApproximately(uri, 384);
-        imageEntryView.setImageBitmap(bitmap);
+        imageEntryView.setImageBitmap(entry.getImage().getThumbnail());
     }
 
     private void changeMainImage(Uri uri) {
         _currentBlogPost.getMainImage().setImageUri(uri);
-
-        Bitmap bitmap = BitmapHelper.decodeBitmapScaledApproximately(uri, 160);
-        _blogPostMainImageView.setImageBitmap(bitmap);
+        _blogPostMainImageView.setImageBitmap(_currentBlogPost.getMainImage().getThumbnail());
     }
 
     private void refreshUI() {
@@ -221,7 +216,7 @@ public class MainPage extends AppCompatActivity {
 
     private void setupLastImageClickedImage() {
         final ImageView latestImageEntryClickedImage = (ImageView)findViewById(R.id.latest_entry_click_image);
-        _listAdapter.onImageEntryImageClicked = new View.OnClickListener() {
+        _listAdapter.ImageEntryClickedListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ImageView img = (ImageView)v;

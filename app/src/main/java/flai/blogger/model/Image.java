@@ -1,6 +1,7 @@
 package flai.blogger.model;
 
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.util.Log;
 
@@ -37,7 +38,7 @@ public class Image {
         }
 
         final int DisplayImageSize = 172;
-        _displayBitmap = BitmapHelper.loadFromStorageCacheOrCreateBitmap(_imageUri, PathHelper.ThumbnailCacheFolder, DisplayImageSize);
+        _displayBitmap = BitmapHelper.loadFromStorageCacheOrCreateBitmap(_imageUri, PathHelper.ThumbnailCacheFolder, DisplayImageSize, ImageQuality.LowDef, true);
 
         return _displayBitmap;
     }
@@ -55,5 +56,32 @@ public class Image {
         } catch (IOException e) {
             Log.e("blogger", "Exception in Image.write", e);
         }
+    }
+
+    public float getRotation() {
+        int orientation = getOrientation();
+        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
+    }
+
+    private ExifInterface getExif() throws IOException {
+        return new ExifInterface(UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri));
+    }
+
+    private int getOrientation() {
+        try {
+            return this.getExif().getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+        } catch (IOException e) {
+            return 1;
+        }
+    }
+
+    public String getFilename() {
+        String uriPath = UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri);
+        String fileName = PathHelper.getLastComponentOfPath(uriPath);
+
+        return fileName;
     }
 }

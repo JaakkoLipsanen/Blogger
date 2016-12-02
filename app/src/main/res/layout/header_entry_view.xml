@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/header_entry"
-    android:minHeight="240px">
+    android:minHeight="120dp">
 
     <!-- "Header: " label -->
     <TextView
@@ -18,29 +18,29 @@
         android:text="Hello!!"
         android:layout_weight="1"
         android:layout_gravity="center"
-        android:id="@+id/text_entry_text"/>
+        android:id="@+id/header_entry_text"/>
 
     <!-- Move up/down/delete buttons -->
     <LinearLayout
-        android:layout_width="100px"
+        android:layout_width="34dp"
         android:layout_height="match_parent"
         android:layout_toRightOf="@+id/change_image_button"
         android:orientation="vertical">
 
         <Button
-            android:layout_width="100px"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="^"
             android:id="@+id/move_up_entry"/>
         <Button
-            android:layout_width="100px"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Del"
+            android:text="D"
             android:id="@+id/delete_entry" />
         <Button
-            android:layout_width="100px"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="↓"

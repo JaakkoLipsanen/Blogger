@@ -27,14 +27,22 @@ public class Image {
     public Uri getImageUri() {
         return _imageUri;
     }
-    public void setImageUri(Uri uri) { _imageUri = uri; }
+    public void setImageUri(Uri uri) {
+        if(_imageUri != null && _imageUri.equals(uri)) {
+            return;
+        }
+
+        _imageUri = uri;
+        _displayBitmap = null; // not sure if I dare to recycle this..
+                               // if it's used somewhere, then app crashes probably. and recycle isn't actually required, it will be gc'd.
+    }
 
     public Bitmap getThumbnail() {
-        if(_displayBitmap != null) {
-            return _displayBitmap;
-        }
-        else if(_imageUri == null) {
+        if(_imageUri == null) {
             return null; // TODO: default image
+        }
+        else if(_displayBitmap != null) {
+            return _displayBitmap;
         }
 
         final int DisplayImageSize = 172;
@@ -58,27 +66,11 @@ public class Image {
         }
     }
 
-    public float getRotation() {
-        int orientation = getOrientation();
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
-        return 0;
-    }
-
-    private ExifInterface getExif() throws IOException {
-        return new ExifInterface(UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri));
-    }
-
-    private int getOrientation() {
-        try {
-            return this.getExif().getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-        } catch (IOException e) {
-            return 1;
-        }
-    }
-
     public String getFilename() {
+        if(_imageUri == null) {
+            return null;
+        }
+
         String uriPath = UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri);
         String fileName = PathHelper.getLastComponentOfPath(uriPath);
 

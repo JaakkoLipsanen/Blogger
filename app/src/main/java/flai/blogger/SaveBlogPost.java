@@ -37,7 +37,7 @@ public class SaveBlogPost {
         try {
             postFile.createNewFile();
         } catch (IOException e) {
-            DialogHelper.showErrorDialog("SaveBlogPost: creating post.txt failed", e);
+            DialogHelper.showErrorToast("SaveBlogPost: creating post.txt failed", e);
             return;
         }
 
@@ -61,7 +61,7 @@ public class SaveBlogPost {
             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest))) {
             ZipHelper.zipFolderRecursively(out, sourceFolder, sourceFolder.getPath().length());
         } catch (Exception e) {
-            DialogHelper.showErrorDialog("SaveBlogPost: creating zip file failed", e);
+            DialogHelper.showErrorToast("SaveBlogPost: creating zip file failed", e);
             return;
         }
     }
@@ -87,7 +87,7 @@ public class SaveBlogPost {
             }
 
         } catch (IOException e) {
-            DialogHelper.showErrorDialog("SaveBlogPost: writing post.txt file failed", e);
+            DialogHelper.showErrorToast("SaveBlogPost: writing post.txt file failed", e);
             return false;
         }
 
@@ -107,7 +107,7 @@ public class SaveBlogPost {
 
             boolean copySuccess = IOHelper.copyFile(sourceFile, destinationFile);
             if(!copySuccess) {
-                DialogHelper.showErrorDialog("SaveBlogPost: copying image failed");
+                DialogHelper.showErrorToast("SaveBlogPost: copying image failed");
             }
         }
     }

@@ -11,8 +11,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,8 +18,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import flai.blogger.helpers.MiscHelper;
+import flai.blogger.helpers.DialogHelper;
 import flai.blogger.helpers.IntentHelper;
+import flai.blogger.helpers.MiscHelper;
 import flai.blogger.helpers.PermissionHelper;
 import flai.blogger.helpers.UIHelper;
 import flai.blogger.model.BlogEntry;
@@ -67,6 +66,7 @@ public class MainPage extends AppCompatActivity {
         this.setupLoadButton();
         this.setupOnImageEntryClicked();
 
+        _blogPostTitleEditText.setText(_currentBlogPost.getTitle());
         _blogPostTitleEditText.addTextChangedListener(
                 new TextWatcher() {
                     @Override
@@ -81,6 +81,7 @@ public class MainPage extends AppCompatActivity {
                     }
                 });
 
+        _blogPostStartDayEditText.setText(Integer.toString(_currentBlogPost.getDayRange().StartDate));
         _blogPostStartDayEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -95,6 +96,7 @@ public class MainPage extends AppCompatActivity {
             }
         });
 
+        _blogPostEndDayEditText.setText(Integer.toString(_currentBlogPost.getDayRange().EndDate));
         _blogPostEndDayEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -157,6 +159,8 @@ public class MainPage extends AppCompatActivity {
 
         ImageView imageEntryView = (ImageView) _listAdapter.getViewByPosition(entryPosition, _entryListView).findViewById(R.id.image_entry_image);
         imageEntryView.setImageBitmap(entry.getImage().getThumbnail());
+
+        _listAdapter.refresh();
     }
 
     private void changeMainImage(Uri uri) {
@@ -185,7 +189,6 @@ public class MainPage extends AppCompatActivity {
 
     // display the clicked image entry in fullscreen popup
     private void setupOnImageEntryClicked() {
-        final MainPage mainPage = this;
         _listAdapter.ImageEntryClickedListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,10 +197,10 @@ public class MainPage extends AppCompatActivity {
                     return;
                 }
 
-                final ImageView imageViewToDisplay = new ImageView(mainPage); // will be fullscreen
+                final ImageView imageViewToDisplay = new ImageView(MainPage.this); // will be fullscreen
                 imageViewToDisplay.setImageDrawable(clickedImageView.getDrawable());
 
-                final Dialog dialog = new Dialog(mainPage, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                final Dialog dialog = new Dialog(MainPage.this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
 
                 dialog.setContentView(imageViewToDisplay);
                 imageViewToDisplay.setOnClickListener(new View.OnClickListener() {
@@ -242,6 +245,11 @@ public class MainPage extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!_currentBlogPost.canBeSaved()) {
+                    DialogHelper.showErrorDialog(MainPage.this, "Blog post can't be saved (invalid title, dayrange etc)");
+                    return;
+                }
+
                 SaveBlogPost.saveBlogPost(_currentBlogPost);
             }
         });

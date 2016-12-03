@@ -123,7 +123,7 @@ public class BitmapHelper {
             BitmapHelper.copyExif(sourceExif, destinationCacheFile.getPath());
         }
         catch(Exception e) {
-            DialogHelper.showErrorDialog("BitmapHelper.loadImageFromCache failed", e);
+            DialogHelper.showErrorToast("BitmapHelper.loadImageFromCache failed", e);
             destinationCacheFile = null;
         }
 

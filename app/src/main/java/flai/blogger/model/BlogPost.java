@@ -17,9 +17,8 @@ public class BlogPost {
     private ArrayList<BlogEntry> _entries;
     private Image _mainImage;
 
-
     public BlogPost() {
-        this("Default", new DayRange(1, 2), new ArrayList<BlogEntry>(), new Image(null));
+        this("Default", new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null));
     }
 
     public BlogPost(String title, DayRange dayRange, List<BlogEntry> entries, Image mainImage) {
@@ -45,17 +44,33 @@ public class BlogPost {
 
     public List<Uri> getAllImageUris() {
         HashSet<Uri> uris = new HashSet<>();
-        if(_mainImage != null) {
+        if(_mainImage.getImageUri() != null) {
             uris.add(_mainImage.getImageUri());
         }
 
         for(BlogEntry entry : _entries) {
             if(entry instanceof BlogEntry.ImageEntry) {
                 BlogEntry.ImageEntry imageEntry = (BlogEntry.ImageEntry)entry;
-                uris.add(imageEntry.getImage().getImageUri());
+                if(imageEntry.getImage().getImageUri() != null) {
+                    uris.add(imageEntry.getImage().getImageUri());
+                }
             }
         }
 
         return new ArrayList<>(uris);
+    }
+
+    public boolean canBeSaved() {
+        if(_title == null || _title.trim().length() == 0) {
+            return false;
+        }
+
+        if(_dayRange.StartDate > _dayRange.EndDate) {
+            return false;
+        }
+
+        // if(_mainImage.getUri() == null) { return false; }
+
+        return true;
     }
 }

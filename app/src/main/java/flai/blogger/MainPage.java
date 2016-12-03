@@ -1,6 +1,7 @@
 package flai.blogger;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,7 +65,7 @@ public class MainPage extends AppCompatActivity {
         this.setupChangeMainImageButton();
         this.setupSaveButton();
         this.setupLoadButton();
-        this.setupLastImageClickedImage();
+        this.setupOnImageEntryClicked();
 
         _blogPostTitleEditText.addTextChangedListener(
                 new TextWatcher() {
@@ -82,14 +83,10 @@ public class MainPage extends AppCompatActivity {
 
         _blogPostStartDayEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -100,14 +97,10 @@ public class MainPage extends AppCompatActivity {
 
         _blogPostEndDayEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -214,17 +207,48 @@ public class MainPage extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupLastImageClickedImage() {
-        final ImageView latestImageEntryClickedImage = (ImageView)findViewById(R.id.latest_entry_click_image);
+    // display the clicked image entry in fullscreen popup
+    private void setupOnImageEntryClicked() {
+        final MainPage mainPage = this;
         _listAdapter.ImageEntryClickedListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageView img = (ImageView)v;
-                if(img != null) {
-                    latestImageEntryClickedImage.setImageDrawable(img.getDrawable());
+                ImageView clickedImageView = (ImageView)v;
+                if(clickedImageView == null || clickedImageView.getDrawable() == null) {
+                    return;
                 }
+
+                final ImageView imageViewToDisplay = new ImageView(mainPage); // will be fullscreen
+                imageViewToDisplay.setImageDrawable(clickedImageView.getDrawable());
+
+                final Dialog dialog = new Dialog(mainPage, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+
+                dialog.setContentView(imageViewToDisplay);
+                imageViewToDisplay.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
             }
         };
+    }
+
+    @Override // display yes/no popup dialog when exiting with back button
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+            .setTitle("Closing App")
+            .setMessage("Are you sure you want to close Blogger?")
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            })
+            .setNegativeButton("No", null)
+            .show();
     }
 
     private void setupLoadButton() {

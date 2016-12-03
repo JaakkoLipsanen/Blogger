@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="fill_parent"
                 android:clickable="true"
-                android:src="@drawable/testi"
+                android:src="@drawable/default_image"
                 android:id="@+id/image_entry_image"
                 android:layout_above="@+id/image_entry_filename"
                 android:scaleType="fitCenter"/>

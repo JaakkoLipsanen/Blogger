@@ -63,7 +63,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/testi"
+                android:src="@drawable/default_image"
                 android:id="@+id/title_edit_text"/>
 
         </LinearLayout>
@@ -85,7 +85,7 @@
             <EditText
                 android:layout_width="128px"
                 android:layout_height="wrap_content"
-                android:src="@drawable/testi"
+                android:src="@drawable/default_image"
                 android:inputType="number"
                 android:id="@+id/date_range_min"/>
 
@@ -98,7 +98,7 @@
             <EditText
                 android:layout_width="128px"
                 android:layout_height="wrap_content"
-                android:src="@drawable/testi"
+                android:src="@drawable/default_image"
                 android:inputType="number"
                 android:id="@+id/date_range_max"/>
 
@@ -117,7 +117,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/darkBackground"
                 android:scaleType="fitCenter"
-                android:src="@drawable/testi"
+                android:src="@drawable/default_image"
                 android:id="@+id/mainImageButton" />
 
         </LinearLayout>
@@ -133,21 +133,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/itemList"></ListView>
-
-        <!-- Last clicked entry image -->
-        <TextView
-            android:layout_marginTop="256px"
-            android:text="latest clicked entry image:"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </TextView>
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:src="@drawable/testi"
-            android:id="@+id/latest_entry_click_image"/>
 
     </LinearLayout>
 </ScrollView>

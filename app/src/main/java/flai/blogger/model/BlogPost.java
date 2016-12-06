@@ -18,7 +18,7 @@ public class BlogPost {
     private Image _mainImage;
 
     public BlogPost() {
-        this("Default", new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null));
+        this("Default", new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null, null));
     }
 
     public BlogPost(String title, DayRange dayRange, List<BlogEntry> entries, Image mainImage) {

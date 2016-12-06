@@ -15,11 +15,26 @@ import java.io.OutputStream;
 
 import flai.blogger.BloggerApplication;
 import flai.blogger.model.ImageQuality;
+import flai.blogger.model.Size;
 
 /**
  * Created by Jaakko on 25.11.2016.
  */
 public class BitmapHelper {
+
+    public static Size getResolution(Uri imageUri) {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+
+        try(InputStream stream = BloggerApplication.getAppContext().getContentResolver().openInputStream(imageUri)) {
+            BitmapFactory.decodeStream(stream, null, options);
+        } catch (Exception e) {
+            Log.e("blogger", "BitmapHelper.getResolution: initial image load failed");
+            return null; // TODO: return default image
+        }
+
+        return new Size(options.outWidth, options.outHeight);
+    }
 
     public static File loadFromStorageCacheOrCreateFile(Uri originalUri, String cacheFolder, int requestedMinDimension, ImageQuality imageQuality, boolean rotateBeforeCaching) {
         CachedBitmap cachedBitmap = loadImageFromCache(originalUri, cacheFolder, requestedMinDimension, imageQuality, rotateBeforeCaching);
@@ -41,24 +56,18 @@ public class BitmapHelper {
 
     // requestedMinDimension: give "1080", then loads correctly both portrait and landscape images
     public static Bitmap decodeBitmapScaledApproximately(Uri uri, int requestedMinDimension, ImageQuality imageQuality) {
-        // first load just the image info, not actual image itself to get width/height
+        Size imageResolution = getResolution(uri);
+        if(imageResolution == null) {
+            Log.e("blogger", "BitmapHelper.decodeBitmapScaledApproximately: initial image load failed");
+            return null; // TODO: return default image
+        }
+
         final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
+        options.inSampleSize = calculateInSampleSizeFromRequesteMinDimension(imageResolution, requestedMinDimension); // inSampleSize == int representing the "supersampling"/"zoom" level
         options.inPreferredConfig = (imageQuality == ImageQuality.Original) ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
         if(imageQuality == ImageQuality.LowDef) {
             options.inDither = true;
         }
-
-        try(InputStream stream = BloggerApplication.getAppContext().getContentResolver().openInputStream(uri)) {
-            BitmapFactory.decodeStream(stream, null, options);
-        } catch (Exception e) {
-            Log.e("blogger", "BitmapHelper.decodeBitmapScaled: initial image load failed");
-            return null; // TODO: return default image
-        }
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSizeFromRequesteMinDimension(options, requestedMinDimension);
-        options.inJustDecodeBounds = false;
 
         try(InputStream stream = BloggerApplication.getAppContext().getContentResolver().openInputStream(uri)) {
             return BitmapFactory.decodeStream(stream, null, options);
@@ -68,10 +77,10 @@ public class BitmapHelper {
         }
     }
 
-    private static int calculateInSampleSizeFromRequesteMinDimension(BitmapFactory.Options options, int requestedMinDimension) {
+    private static int calculateInSampleSizeFromRequesteMinDimension(Size imageResolution, int requestedMinDimension) {
         // Raw height and width of image
-        final int imageWidth = options.outWidth;
-        final int imageHeight = options.outHeight;
+        final int imageWidth = imageResolution.Width;
+        final int imageHeight = imageResolution.Height;
         int currentInSampleSize = 1;
 
         if (imageHeight > requestedMinDimension && imageWidth > requestedMinDimension) {

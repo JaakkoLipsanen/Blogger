@@ -19,6 +19,7 @@ import flai.blogger.model.BlogEntry;
 import flai.blogger.model.BlogPost;
 import flai.blogger.model.DayRange;
 import flai.blogger.model.Image;
+import flai.blogger.model.Size;
 
 /**
  * Created by Jaakko on 11.11.2016.
@@ -26,7 +27,7 @@ import flai.blogger.model.Image;
 public class LoadBlogPost {
     public static BlogPost loadBlogPost(Uri uri) {
 
-        new File(PathHelper.ImageFolderName).mkdirs();
+        new File(PathHelper.HighQualityImageCacheFolder).mkdirs();
         try(InputStream inputStream = new BufferedInputStream(BloggerApplication.getAppContext().getContentResolver().openInputStream(uri));
             ZipInputStream zipInput = new ZipInputStream(inputStream)) {
 
@@ -41,7 +42,7 @@ public class LoadBlogPost {
                 }
                 else if(entry.getName().startsWith("/orig/")) { // aka image!!
 
-                    final File imageFile = new File(PathHelper.ImageFolderName + "/" + PathHelper.getLastComponentOfPath(entry.getName())); /* SAVE IMAGES TO /flai/images_all */
+                    final File imageFile = new File(PathHelper.HighQualityImageCacheFolder + "/" + PathHelper.getLastComponentOfPath(entry.getName())); /* SAVE IMAGES TO /flai/images_all */
                     imageFile.delete(); // make sure deleted
                     imageFile.createNewFile();
 
@@ -80,10 +81,10 @@ public class LoadBlogPost {
 
         String title = lines[0].split(":")[1].trim();
         String trip = lines[1].split(":")[1].trim();
-        String dateRange = lines[2].split(":")[1].trim();
-        String mainImage = lines[3].split(":")[1].trim();
+        String dateRangeStr = lines[2].split(":")[1].trim();
+        String mainImageStr = lines[3].split(":")[1].trim();
 
-        final File imageFolder = new File(PathHelper.ImageFolderName);
+        final File imageFolder = new File(PathHelper.HighQualityImageCacheFolder);
         imageFolder.mkdir(); // make sure exists
 
         ArrayList<BlogEntry> entries = new ArrayList<>();
@@ -104,16 +105,15 @@ public class LoadBlogPost {
             }
             else if(tag.equals("image")) {
                 String[] parts = content.split("\\|");
-                String fileName = parts[0];
+                String imageStr = parts[0]; // filename and resolution
                 String imageText = (parts.length > 1) ? parts[1] :  "";
 
-                entries.add(new BlogEntry.ImageEntry(new Image(
-                        Uri.fromFile(new File(PathHelper.ImageFolderName + "/" + fileName))),
-                        imageText));
+                Image image = Image.parse(PathHelper.HighQualityImageCacheFolder, imageStr);
+                entries.add(new BlogEntry.ImageEntry(image, imageText));
             }
         }
 
-        Uri mainImageUri =  Uri.fromFile(new File(PathHelper.ImageFolderName + "/" + mainImage));
-        return new BlogPost(title, DayRange.parse(dateRange), entries, new Image(mainImageUri));
+        Image mainImage = Image.parse(PathHelper.HighQualityImageCacheFolder, mainImageStr);
+        return new BlogPost(title, DayRange.parse(dateRangeStr), entries, mainImage);
     }
 }

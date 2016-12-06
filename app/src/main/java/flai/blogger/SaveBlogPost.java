@@ -1,6 +1,5 @@
 package flai.blogger;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.io.BufferedOutputStream;

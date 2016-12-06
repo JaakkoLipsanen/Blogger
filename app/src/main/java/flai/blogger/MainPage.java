@@ -141,7 +141,7 @@ public class MainPage extends AppCompatActivity {
     }
 
     private void loadImage(Uri uri)  {
-        _currentBlogPost.entries().add(new BlogEntry.ImageEntry(new Image(uri)));
+        _currentBlogPost.entries().add(new BlogEntry.ImageEntry(new Image(uri, null)));
         _listAdapter.refresh();
 
         UIHelper.setListViewHeightBasedOnItems(_entryListView);

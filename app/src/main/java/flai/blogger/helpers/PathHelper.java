@@ -23,4 +23,9 @@ public class PathHelper {
         String lastPathComponent = segments[segments.length - 1];
         return lastPathComponent;
     }
+
+    // http://stackoverflow.com/a/924519
+    public static String getFilenameWithoutExtension(String filename) {
+        return filename.replaceFirst("[.][^.]+$", "");
+    }
 }

@@ -23,6 +23,7 @@ import flai.blogger.model.ImageQuality;
  * Created by Jaakko on 11.11.2016.
  */
 public class SaveBlogPost {
+    private static final int FILE_MAX_SIZE_IN_BYTES = 20 * 1024 * 1024 - 2048; // 20MB - 2kb for buffer // todo: make this into a modifable setting
     public static void saveBlogPost(BlogPost blogPost) {
 
         final File tempFolder = new File(PathHelper.TempFolderName);
@@ -62,6 +63,18 @@ public class SaveBlogPost {
         } catch (Exception e) {
             DialogHelper.showErrorToast("SaveBlogPost: creating zip file failed", e);
             return;
+        }
+
+
+        File outputZip = new File(toLocation);
+        if(!outputZip.exists()) {
+            DialogHelper.showErrorToast("SaveBlogPost: zip save succesful, but couldn't find it for splitting?");
+            return;
+        }
+
+        long size = outputZip.length();
+        if(size > SaveBlogPost.FILE_MAX_SIZE_IN_BYTES) {
+            splitFile(outputZip, SaveBlogPost.FILE_MAX_SIZE_IN_BYTES);
         }
     }
 
@@ -109,5 +122,20 @@ public class SaveBlogPost {
                 DialogHelper.showErrorToast("SaveBlogPost: copying image failed");
             }
         }
+    }
+
+    private static void splitFile(File outputFile, int chunkSize) {
+        if(!outputFile.exists() || outputFile.length() <= chunkSize) {
+            return;
+        }
+
+        String filename = PathHelper.getFilenameWithoutExtension(outputFile.getName());
+        String outputFolderPath = outputFile.getParent() + "/" + filename +  "_split/";
+
+        File outputFolder = new File(outputFolderPath);
+        outputFolder.delete();
+        outputFolder.mkdirs();
+
+        IOHelper.splitFile(outputFile, outputFolder.getAbsolutePath(), chunkSize);
     }
 }

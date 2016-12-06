@@ -71,7 +71,7 @@ public class SaveBlogPost {
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileStream)) {
 
             outputWriter.write("title: " + blogPost.getTitle() + System.getProperty("line.separator"));
-            outputWriter.write("trip: USA 2016" + System.getProperty("line.separator"));
+            outputWriter.write("trip: " + blogPost.getTrip() + System.getProperty("line.separator"));
             outputWriter.write("date-range: " + blogPost.getDayRange().toString() + System.getProperty("line.separator"));
 
             outputWriter.write("main-image: ");

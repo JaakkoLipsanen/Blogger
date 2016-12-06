@@ -113,7 +113,7 @@ public class LoadBlogPost {
             }
         }
 
-        Image mainImage = Image.parse(PathHelper.HighQualityImageCacheFolder, mainImageStr);
-        return new BlogPost(title, DayRange.parse(dateRangeStr), entries, mainImage);
+        Image mainImage = (mainImageStr.trim().length() > 0) ? Image.parse(PathHelper.HighQualityImageCacheFolder, mainImageStr) : new Image(null, null);
+        return new BlogPost(title, trip, DayRange.parse(dateRangeStr), entries, mainImage);
     }
 }

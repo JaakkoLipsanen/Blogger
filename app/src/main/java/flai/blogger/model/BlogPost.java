@@ -11,18 +11,23 @@ import java.util.List;
  * Created by Jaakko on 11.11.2016.
  */
 public class BlogPost {
+    private static final String DEFAULT_TITLE = "Default";
+    private static final String DEFAULT_TRIP = "Israel & Jordan 2016"; // todo: make this changeable in settings or something?
+
     private String _title;
+    private String _trip;
     private DayRange _dayRange;
 
     private ArrayList<BlogEntry> _entries;
     private Image _mainImage;
 
     public BlogPost() {
-        this("Default", new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null, null));
+        this(DEFAULT_TITLE, DEFAULT_TRIP, new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null, null));
     }
 
-    public BlogPost(String title, DayRange dayRange, List<BlogEntry> entries, Image mainImage) {
+    public BlogPost(String title, String trip, DayRange dayRange, List<BlogEntry> entries, Image mainImage) {
         _title = title;
+        _trip = trip;
         _dayRange = dayRange;
 
         _entries = new ArrayList<>(entries);
@@ -31,6 +36,8 @@ public class BlogPost {
 
     public String getTitle() { return _title; }
     public void setTitle(String title) { _title = title; }
+
+    public String getTrip() { return _trip; }
 
     public DayRange getDayRange() {  return _dayRange; }
 

@@ -35,10 +35,8 @@ public class IntentHelper {
         Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         pickIntent.setType(type);
 
-
         Intent chooserIntent = Intent.createChooser(getIntent, displayName);
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
-
 
         if(allowMultiple) {
             getIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);

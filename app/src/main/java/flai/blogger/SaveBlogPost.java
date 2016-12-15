@@ -50,8 +50,8 @@ public class SaveBlogPost {
         SaveBlogPost.saveImages(blogPost.getAllImageUris(), photoFolder);
 
         /* FINALLY, SAVE TO .ZIP */
-        // take the title, replace all spaces with hyphens and remove all special characters
-        final String fileName = blogPost.getTitle().replace(" ", "-").replaceAll("/[^A-Za-z0-9 ]/", "");
+        // take the title, replace all spaces with hyphens and remove all special characters, then put it to lowercase
+        final String fileName = blogPost.getTitle().replace(" ", "-").replaceAll("/[^A-Za-z0-9 ]/", "").toLowerCase();
 
         final File sourceFolder = tempFolder;
         final String toLocation = PathHelper.FlaiFolderName + "/" + fileName + ".zip";

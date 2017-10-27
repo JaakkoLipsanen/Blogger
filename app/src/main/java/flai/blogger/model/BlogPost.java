@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class BlogPost {
     private static final String DEFAULT_TITLE = "Default";
-    private static final String DEFAULT_TRIP = "Israel & Jordan 2016"; // todo: make this changeable in settings or something?
+    private static final String DEFAULT_TRIP = "Morocco 2017"; // todo: make this changeable in settings or something?
 
     private String _title;
     private String _trip;

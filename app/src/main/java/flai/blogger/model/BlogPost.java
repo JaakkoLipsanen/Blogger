@@ -7,12 +7,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import flai.blogger.Settings;
+
 /**
  * Created by Jaakko on 11.11.2016.
  */
 public class BlogPost {
     private static final String DEFAULT_TITLE = "Default";
-    private static final String DEFAULT_TRIP = "Morocco 2017"; // todo: make this changeable in settings or something?
 
     private String _title;
     private String _trip;
@@ -22,7 +23,7 @@ public class BlogPost {
     private Image _mainImage;
 
     public BlogPost() {
-        this(DEFAULT_TITLE, DEFAULT_TRIP, new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null, null));
+        this(DEFAULT_TITLE, Settings.getTripName().orElse("No Trip"), new DayRange(0, 0), new ArrayList<BlogEntry>(), new Image(null, null));
     }
 
     public BlogPost(String title, String trip, DayRange dayRange, List<BlogEntry> entries, Image mainImage) {
@@ -38,6 +39,7 @@ public class BlogPost {
     public void setTitle(String title) { _title = title; }
 
     public String getTrip() { return _trip; }
+    public void setTrip(String trip) { _trip = trip; }
 
     public DayRange getDayRange() {  return _dayRange; }
 

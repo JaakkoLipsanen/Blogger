@@ -3,10 +3,13 @@ package flai.blogger;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -16,7 +19,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import flai.blogger.helpers.DialogHelper;
 import flai.blogger.helpers.IntentHelper;
@@ -62,6 +71,7 @@ public class MainPage extends AppCompatActivity {
 
         this.setupAddNewEntryButton();
         this.setupChangeMainImageButton();
+        this.setupChangeTripButton();
         this.setupSaveButton();
         this.setupLoadButton();
         this.setupOnImageEntryClicked();
@@ -110,6 +120,8 @@ public class MainPage extends AppCompatActivity {
                 _currentBlogPost.getDayRange().EndDate = (day != null) ? day : 0;
             }
         });
+
+        updateTripTextFromSettings();
     }
 
     /* Called when loading blog post or after selecting an image */
@@ -262,6 +274,67 @@ public class MainPage extends AppCompatActivity {
                 IntentHelper.showImagePicker(MainPage.this, ChangeMainImageID, false);
             }
         });
+    }
+
+    private void setupChangeTripButton() {
+        final EditText tripEditText = (EditText) findViewById(R.id.trip_edit_text);
+        tripEditText.setOnClickListener(view -> {
+            Context context = view.getContext();
+            LinearLayout layout = new LinearLayout(context);
+            layout.setOrientation(LinearLayout.VERTICAL);
+
+            final EditText tripNameEditText = new EditText(context);
+            tripNameEditText.setHint("Trip name");
+            tripNameEditText.setText(Settings.getTripName().orElse(""));
+            layout.addView(tripNameEditText);
+
+            final EditText tripStartDateEditText = new EditText(context);
+            tripStartDateEditText.setHint("Start date ('17.12.1995' for example)");
+            tripStartDateEditText.setText(Settings.getTripStartDateString().orElse(""));
+            layout.addView(tripStartDateEditText);
+
+            new AlertDialog.Builder(view.getContext())
+                    .setTitle("Change trip")
+                    .setView(layout)
+                    .setPositiveButton("Save", (dialog, which) -> {
+                        String newTripName = tripNameEditText.getText().toString().trim();
+                        if(newTripName.length() > 0) {
+                            Settings.setTripName(newTripName);
+                        }
+
+                        String newTripStartDate = tripStartDateEditText.getText().toString().trim();
+                        if(newTripStartDate.length() > 0) {
+                           try {
+                               Settings.setTripStartDate(newTripStartDate);
+                           }
+                           catch(Exception e) {
+                               new AlertDialog.Builder(view.getContext())
+                                       .setTitle("Error")
+                                       .setMessage("Error: probably invalid date format")
+                                       .setNeutralButton("OK", (a, b) -> { })
+                                       .show();
+                           }
+                        }
+
+                        updateTripTextFromSettings();
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .show();
+        });
+
+        tripEditText.setText("Morocco 2017 (current day: 30)");
+    }
+
+    private void updateTripTextFromSettings() {
+        String newTripEditText = "";
+        newTripEditText += Settings.getTripName().orElse("Trip not set");
+        newTripEditText += Settings.getTripStartDate().map(d -> " (Current day: " + (TimeUnit.DAYS.convert(new Date().getTime() - d.getTime(), TimeUnit.MILLISECONDS) + 1) + ")").orElse(" (No start date set)");
+
+        final EditText tripEditText = (EditText) findViewById(R.id.trip_edit_text);
+        tripEditText.setText(newTripEditText);
+
+        _currentBlogPost.setTrip(Settings.getTripName().orElse("No Trip"));
     }
 
     private void setupAddNewEntryButton() {

@@ -68,6 +68,32 @@
 
         </LinearLayout>
 
+        <!-- Trip -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      xmlns:tools="http://schemas.android.com/tools"
+                      android:layout_width="match_parent"
+                      android:layout_height="120px"
+                      android:orientation="horizontal"
+                      tools:context=".LinearLayout" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Trip:   " />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/default_image"
+                android:id="@+id/trip_edit_text"
+                android:text="test"
+                android:editable="false"
+                android:background="@color/gray"
+                android:padding="8px"/>
+
+        </LinearLayout>
+
         <!-- Day Range -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"

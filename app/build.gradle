@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 24
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         applicationId "flai.blogger"
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -20,6 +20,10 @@ android {
         debug {
             debuggable true
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

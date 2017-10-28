@@ -67,4 +67,22 @@ public abstract class BlogEntry {
         public String getText() { return _text; }
         public void setText(String value) { _text = value; }
     }
+
+    public static class ImageGroupEntry extends BlogEntry {
+        private Image[] _images;
+        public ImageGroupEntry(Image[] images) {
+            _images = images;
+        }
+
+        @Override
+        public void write(OutputStreamWriter writer) throws IOException {
+            writer.write("image-group: ");
+            for(Image image : _images) {
+                image.write(writer);
+                writer.write(" ");
+            }
+        }
+
+        public Image[] getImages() { return _images; }
+    }
 }

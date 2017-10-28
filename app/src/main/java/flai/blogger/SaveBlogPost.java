@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 import flai.blogger.helpers.BitmapHelper;
@@ -17,6 +20,7 @@ import flai.blogger.helpers.UriHelper;
 import flai.blogger.helpers.ZipHelper;
 import flai.blogger.model.BlogEntry;
 import flai.blogger.model.BlogPost;
+import flai.blogger.model.Image;
 import flai.blogger.model.ImageQuality;
 
 /**
@@ -93,7 +97,7 @@ public class SaveBlogPost {
             outputWriter.write(System.getProperty("line.separator"));
             outputWriter.write(System.getProperty("line.separator"));
 
-            for(BlogEntry entry : blogPost.entries()) {
+            for(BlogEntry entry : processBlogEntries(blogPost.entries())) {
                 entry.write(outputWriter);
                 outputWriter.write(System.getProperty("line.separator"));
             }
@@ -104,6 +108,45 @@ public class SaveBlogPost {
         }
 
         return true;
+    }
+
+    // transform consecutive image entries to image-group entries
+    private static List<BlogEntry> processBlogEntries(List<BlogEntry> entries) {
+        List<BlogEntry> processedEntries = new ArrayList<>();
+        List<BlogEntry.ImageEntry> collectedImageGroupEntries = new ArrayList<>();
+
+        Runnable flushImageGroupAction = () -> {
+            if(collectedImageGroupEntries.size() == 1) {
+                processedEntries.add(collectedImageGroupEntries.get(0));
+            }
+            else if(collectedImageGroupEntries.size() > 1) {
+                processedEntries.add(new BlogEntry.ImageGroupEntry(collectedImageGroupEntries.stream().map(e -> e.getImage()).toArray(Image[]::new)));
+            }
+
+            collectedImageGroupEntries.clear();
+        };
+
+        for(int i = 0; i < entries.size(); i++) {
+            BlogEntry entry = entries.get(i);
+            boolean isValidImageGroupImage = false;
+
+            if(entry instanceof BlogEntry.ImageEntry) {
+                BlogEntry.ImageEntry imageEntry = (BlogEntry.ImageEntry)entry;
+                isValidImageGroupImage = imageEntry.getImageText().trim().isEmpty() && imageEntry.getImage() != null;
+            }
+
+            if(isValidImageGroupImage) {
+                collectedImageGroupEntries.add((BlogEntry.ImageEntry)entry);
+                continue;
+            }
+
+            flushImageGroupAction.run();
+
+            processedEntries.add(entry);
+        }
+
+        flushImageGroupAction.run();
+        return processedEntries;
     }
 
     private static void saveImages(Iterable<Uri> uris, File destinationFolder) {

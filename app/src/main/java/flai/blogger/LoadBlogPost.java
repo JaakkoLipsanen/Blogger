@@ -111,6 +111,13 @@ public class LoadBlogPost {
                 Image image = Image.parse(PathHelper.HighQualityImageCacheFolder, imageStr);
                 entries.add(new BlogEntry.ImageEntry(image, imageText));
             }
+            else if(tag.equals("image-group")) {
+                String[] images = content.split(" ");
+
+                for(String imageStr : images) {
+                    entries.add(new BlogEntry.ImageEntry(Image.parse(PathHelper.HighQualityImageCacheFolder, imageStr)));
+                }
+            }
         }
 
         Image mainImage = (mainImageStr.trim().length() > 0) ? Image.parse(PathHelper.HighQualityImageCacheFolder, mainImageStr) : new Image(null, null);

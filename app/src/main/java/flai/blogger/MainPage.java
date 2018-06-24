@@ -6,10 +6,8 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -22,10 +20,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import flai.blogger.helpers.DialogHelper;
 import flai.blogger.helpers.IntentHelper;
@@ -141,7 +140,7 @@ public class MainPage extends AppCompatActivity {
         }
         else if(requestCode == LoadNewImagesID) {
             if(data.getClipData() == null) {
-                this.loadImage(uri);
+                this.loadImage(new Image(uri, null));
             }
             else {
                 this.loadNewImages(data.getClipData());
@@ -152,17 +151,20 @@ public class MainPage extends AppCompatActivity {
         }
     }
 
-    private void loadImage(Uri uri)  {
-        _currentBlogPost.entries().add(new BlogEntry.ImageEntry(new Image(uri, null)));
+    private void loadImage(Image image)  {
+        _currentBlogPost.entries().add(new BlogEntry.ImageEntry(image));
         _listAdapter.refresh();
 
         UIHelper.setListViewHeightBasedOnItems(_entryListView);
     }
 
     private void loadNewImages(ClipData clipData) {
-        for(int i = 0; i < clipData.getItemCount(); i++) {
-            loadImage(clipData.getItemAt(i).getUri());
-        }
+        Stream<Image> images =
+            IntStream.range(0, clipData.getItemCount())
+            .mapToObj(i -> new Image(clipData.getItemAt(i).getUri(), null))
+            .sorted(Comparator.comparing(Image::getFilename));
+
+        images.forEach(this::loadImage);
     }
 
     private void changeEntryImage(Uri uri, int entryPosition) {

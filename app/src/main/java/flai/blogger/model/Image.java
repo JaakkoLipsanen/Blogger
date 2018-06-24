@@ -64,15 +64,12 @@ public class Image {
             return;
         }
 
-        String uriPath = UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri);
-        String fileName = PathHelper.getLastComponentOfPath(uriPath);
-
         if(_resolution == null) {
             _resolution = BitmapHelper.getResolution(_imageUri); // this might, possibly return null. not likely though
         }
 
         try {
-            writer.write(fileName);
+            writer.write(this.getFilename());
             if(_resolution != null) { // if it IS null, then uhh... what?
                 writer.write("?" + _resolution.Width + "x" + _resolution.Height);
             }

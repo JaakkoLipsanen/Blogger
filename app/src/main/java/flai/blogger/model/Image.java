@@ -84,9 +84,16 @@ public class Image {
         }
 
         String uriPath = UriHelper.getPath(BloggerApplication.getAppContext(), _imageUri);
-        String fileName = PathHelper.getLastComponentOfPath(uriPath);
+        if (uriPath != null) {
+            String fileName = PathHelper.getLastComponentOfPath(uriPath);
+            return fileName;
+        }
 
-        return fileName;
+        return null;
+    }
+
+    public boolean isValid() {
+        return this.getFilename() != null;
     }
 
     public static Image parse(String parentFolder, String str) {

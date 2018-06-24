@@ -22,7 +22,9 @@ import android.widget.ListView;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -152,6 +154,11 @@ public class MainPage extends AppCompatActivity {
     }
 
     private void loadImage(Image image)  {
+        if (!image.isValid()) {
+            DialogHelper.showErrorDialog(MainPage.this, "Invalid image, file path can't be determined for some reason. Try moving the file or something");
+            return;
+        }
+
         _currentBlogPost.entries().add(new BlogEntry.ImageEntry(image));
         _listAdapter.refresh();
 
@@ -159,12 +166,26 @@ public class MainPage extends AppCompatActivity {
     }
 
     private void loadNewImages(ClipData clipData) {
-        Stream<Image> images =
+        List<Image> images =
             IntStream.range(0, clipData.getItemCount())
             .mapToObj(i -> new Image(clipData.getItemAt(i).getUri(), null))
+            .collect(Collectors.toList());
+
+        Stream<Image> validImages = images.stream().filter(Image::isValid);
+        List<Image> invalidImages = images.stream().filter(img -> !img.isValid()).collect(Collectors.toList());
+
+        Stream<Image> sortedImages =
+            validImages
             .sorted(Comparator.comparing(Image::getFilename));
 
-        images.forEach(this::loadImage);
+        sortedImages.forEach(this::loadImage);
+        if(invalidImages.size() > 0) {
+            String errorMessage =
+                invalidImages.size() + " invalid images, file path could not be determined for some reason. Try to move the file somewhere else or something\n" +
+                invalidImages.stream().map(img -> img.getImageUri().getPath()).collect(Collectors.joining("\n"));
+
+            DialogHelper.showErrorDialog(MainPage.this, errorMessage);
+        }
     }
 
     private void changeEntryImage(Uri uri, int entryPosition) {

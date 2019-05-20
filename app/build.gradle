@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
 
     defaultConfig {
-        applicationId "flai.blogger"
+        applicationId "flai.bloggerNeo"
         minSdkVersion 24
         targetSdkVersion 23
         versionCode 1

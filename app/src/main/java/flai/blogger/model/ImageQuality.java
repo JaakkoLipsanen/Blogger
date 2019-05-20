@@ -5,5 +5,6 @@ package flai.blogger.model;
  */
 public enum ImageQuality {
     Original, // ARGB8888
+    HighDef, // ARGB8888
     LowDef, // RGB565
 }

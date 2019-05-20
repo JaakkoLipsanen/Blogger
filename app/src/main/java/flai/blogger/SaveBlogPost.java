@@ -29,6 +29,11 @@ import flai.blogger.model.ImageQuality;
 public class SaveBlogPost {
     private static final int FILE_MAX_SIZE_IN_BYTES = 20 * 1024 * 1024 - 2048; // 20MB - 2kb for buffer // todo: make this into a modifable setting
     public static void saveBlogPost(BlogPost blogPost) {
+        saveBlogPost(blogPost, ImageQuality.Original); // to be uploaded when in fast wifi/home
+        saveBlogPost(blogPost, ImageQuality.HighDef); // to be uploaded when in slow wifi
+    }
+
+    private static void saveBlogPost(BlogPost blogPost, ImageQuality imageQuality) {
 
         final File tempFolder = new File(PathHelper.TempFolderName);
         IOHelper.deleteRecursive(tempFolder); // make sure it's empty
@@ -51,14 +56,14 @@ public class SaveBlogPost {
         }
 
         /* THEN, SAVE ALL IMAGES TO /ORIG */
-        SaveBlogPost.saveImages(blogPost.getAllImageUris(), photoFolder);
+        SaveBlogPost.saveImages(blogPost.getAllImageUris(), imageQuality, photoFolder);
 
         /* FINALLY, SAVE TO .ZIP */
         // take the title, replace all spaces with hyphens and remove all special characters, then put it to lowercase
         final String fileName = blogPost.getTitle().replace(" ", "-").replaceAll("/[^A-Za-z0-9 ]/", "").toLowerCase();
 
         final File sourceFolder = tempFolder;
-        final String toLocation = PathHelper.FlaiFolderName + "/" + fileName + ".zip";
+        final String toLocation = PathHelper.FlaiFolderName + "/" + fileName + "-" + imageQuality.name().toLowerCase() + ".zip";
 
         try(FileOutputStream dest = new FileOutputStream(toLocation);
 
@@ -149,14 +154,14 @@ public class SaveBlogPost {
         return processedEntries;
     }
 
-    private static void saveImages(Iterable<Uri> uris, File destinationFolder) {
+    private static void saveImages(Iterable<Uri> uris, ImageQuality imageQuality, File destinationFolder) {
         /* THEN, SAVE ALL IMAGES TO /ORIG */
         for (Uri uri : uris) {
             String sourcePath = UriHelper.getPath(BloggerApplication.getAppContext(), uri);
             String fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
 
             final int ImageMinDimensionSize = 1080;
-            File sourceFile = BitmapHelper.loadFromStorageCacheOrCreateFile(Uri.fromFile(new File(sourcePath)), PathHelper.HighQualityImageCacheFolder, ImageMinDimensionSize, ImageQuality.Original, false);
+            File sourceFile = imageQuality == ImageQuality.Original ? new File(sourcePath) : BitmapHelper.loadFromStorageCacheOrCreateFile(Uri.fromFile(new File(sourcePath)), PathHelper.getCacheFolderByImageQuality(imageQuality), ImageMinDimensionSize, imageQuality, false);
             File destinationFile = new File(destinationFolder.getPath() + "/" + fileName);
             destinationFile.getParentFile().mkdirs(); /* TODO: Okei, tää oli siin antin muokkaamssa commitissa. En tiiä miksi, mut jos jotai häikkää nii kato tätä */
 

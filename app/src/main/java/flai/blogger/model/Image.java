@@ -50,7 +50,7 @@ public class Image {
         }
 
         final int DisplayImageSize = 172;
-        _thumbnailBitmap = BitmapHelper.loadFromStorageCacheOrCreateBitmap(_imageUri, PathHelper.ThumbnailCacheFolder, DisplayImageSize, ImageQuality.LowDef, true);
+        _thumbnailBitmap = BitmapHelper.loadFromStorageCacheOrCreateBitmap(_imageUri, PathHelper.getCacheFolderByImageQuality(ImageQuality.LowDef), DisplayImageSize, ImageQuality.LowDef, true);
 
     //  if(_resolution == null) {
     //      _resolution = new Size(_thumbnailBitmap.getWidth(), _thumbnailBitmap.getHeight());
